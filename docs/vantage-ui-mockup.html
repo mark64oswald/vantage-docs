@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Healthcare Value Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0c1222;
+    --slate: #141e2e;
+    --steel: #1e2d42;
+    --mist: #7b8fa3;
+    --cloud: #b8c5d3;
+    --frost: #1e2d42;
+    --snow: #0f1923;
+    --white: #f0f4f8;
+    --teal: #0d9488;
+    --teal-deep: #0a5e56;
+    --teal-light: #2dd4bf;
+    --teal-glow: #99f6e4;
+    --teal-pale: rgba(13,148,136,0.08);
+    --amber: #f59e0b;
+    --amber-pale: rgba(245,158,11,0.08);
+    --violet: #a78bfa;
+    --violet-deep: #6d28d9;
+    --violet-pale: rgba(167,139,250,0.08);
+    --sky: #38bdf8;
+    --sky-pale: rgba(56,189,248,0.08);
+    --rose: #fb7185;
+    --rose-pale: rgba(251,113,133,0.08);
+    --green: #86efac;
+    --green-deep: #15803d;
+    --sidebar-bg: #0a1018;
+    --panel-bg: #111b27;
+    --input-bg: #182334;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--ink);
+    color: var(--cloud);
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══ LAYOUT ═══ */
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    height: 100vh;
+  }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar {
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .sidebar-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo span { color: var(--teal-light); }
+  .sidebar-tagline {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .sidebar-new-btn {
+    margin: 16px 16px 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .sidebar-new-btn:hover {
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(13,148,136,0.3);
+  }
+  .sidebar-new-btn svg { flex-shrink: 0; }
+
+  .sidebar-section-label {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--mist);
+    padding: 16px 20px 8px;
+    font-weight: 600;
+  }
+
+  .sidebar-sessions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 16px;
+  }
+  .sidebar-sessions::-webkit-scrollbar { width: 4px; }
+  .sidebar-sessions::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .session-item {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .session-item:hover { background: rgba(255,255,255,0.04); }
+  .session-item.active {
+    background: rgba(13,148,136,0.12);
+    border-left: 2px solid var(--teal-light);
+    padding-left: 10px;
+  }
+  .session-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cloud);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .session-item.active .session-title { color: var(--teal-glow); }
+  .session-meta {
+    font-size: 10px;
+    color: var(--mist);
+    margin-top: 3px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .session-tag {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .tag-risk { background: var(--teal-pale); color: var(--teal-light); }
+  .tag-quality { background: var(--violet-pale); color: var(--violet); }
+  .tag-vbc { background: var(--sky-pale); color: var(--sky); }
+  .tag-triple { background: var(--amber-pale); color: var(--amber); }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet-deep), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .sidebar-user-name { font-size: 12px; color: var(--cloud); font-weight: 500; }
+  .sidebar-user-role { font-size: 10px; color: var(--mist); }
+
+  /* ═══ MAIN CONVERSATION PANEL ═══ */
+  .main-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--ink);
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .main-header {
+    padding: 14px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,16,24,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .main-header-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--white);
+  }
+  .main-header-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .header-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    color: var(--mist);
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .header-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--cloud); background: rgba(255,255,255,0.04); }
+  .header-btn.export { border-color: var(--teal-deep); color: var(--teal-light); }
+  .header-btn.export:hover { background: var(--teal-pale); }
+
+  /* Conversation area */
+  .conversation {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 0;
+    scroll-behavior: smooth;
+    min-height: 0;
+  }
+  .conversation::-webkit-scrollbar { width: 6px; }
+  .conversation::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+  .turn {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 28px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.3s ease-out;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .turn-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .turn-label.user { color: var(--teal-light); }
+  .turn-label.vantage { color: var(--violet); }
+  .turn-label .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .turn-label.user .dot { background: var(--teal-light); }
+  .turn-label.vantage .dot { background: var(--violet); }
+
+  .user-msg {
+    background: rgba(13,148,136,0.08);
+    border: 1px solid rgba(13,148,136,0.15);
+    border-radius: 4px var(--radius) var(--radius) var(--radius);
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--cloud);
+    line-height: 1.7;
+  }
+
+  .vantage-msg {
+    background: var(--panel-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius) 4px var(--radius) var(--radius);
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .vantage-msg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--violet), var(--teal));
+  }
+
+  .vantage-msg pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.8;
+    color: var(--cloud);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+  .vantage-msg .teal { color: var(--teal-light); }
+  .vantage-msg .amber { color: var(--amber); }
+  .vantage-msg .violet { color: var(--violet); }
+  .vantage-msg .sky { color: var(--sky); }
+  .vantage-msg .rose { color: var(--rose); }
+  .vantage-msg .green { color: var(--green); }
+  .vantage-msg .muted { color: var(--mist); }
+  .vantage-msg .white { color: var(--white); font-weight: 600; }
+
+  /* Status pill inside vantage msg */
+  .status-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .status-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.3px;
+  }
+  .pill-done { background: rgba(134,239,172,0.1); color: var(--green); border: 1px solid rgba(134,239,172,0.2); }
+  .pill-active { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Report card */
+  .report-card {
+    margin-top: 14px;
+    background: rgba(13,148,136,0.06);
+    border: 1px solid rgba(13,148,136,0.15);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .report-card:hover {
+    background: rgba(13,148,136,0.12);
+    border-color: rgba(13,148,136,0.3);
+    transform: translateY(-1px);
+  }
+  .report-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .report-info { flex: 1; }
+  .report-name { font-size: 12px; font-weight: 600; color: var(--teal-glow); }
+  .report-meta { font-size: 10px; color: var(--mist); margin-top: 2px; }
+  .report-dl { font-size: 10px; color: var(--teal-light); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* Input area */
+  .input-area {
+    padding: 16px 28px 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(10,16,24,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex-shrink: 0;
+  }
+  .input-row {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .input-wrapper {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .input-wrapper:focus-within {
+    border-color: rgba(13,148,136,0.4);
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.08);
+  }
+  .input-field {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 22px;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+  .input-field::placeholder { color: var(--mist); }
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal));
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover {
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(13,148,136,0.3);
+  }
+
+  .input-hints {
+    max-width: 760px;
+    margin: 8px auto 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .input-hint {
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--mist);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    font-family: 'Outfit', sans-serif;
+  }
+  .input-hint:hover {
+    border-color: rgba(13,148,136,0.3);
+    color: var(--teal-light);
+    background: var(--teal-pale);
+  }
+
+  /* ═══ RIGHT PANEL ═══ */
+  .right-panel {
+    background: var(--sidebar-bg);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .panel-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .panel-tab {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--mist);
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Outfit', sans-serif;
+  }
+  .panel-tab:hover { color: var(--cloud); }
+  .panel-tab.active {
+    color: var(--teal-light);
+    border-bottom-color: var(--teal-light);
+  }
+
+  .panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    min-height: 0;
+  }
+  .panel-content::-webkit-scrollbar { width: 4px; }
+  .panel-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* Scenario context card */
+  .context-card {
+    background: var(--panel-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .context-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mist);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .context-value {
+    font-size: 13px;
+    color: var(--cloud);
+    font-weight: 500;
+  }
+  .context-sub {
+    font-size: 11px;
+    color: var(--mist);
+    margin-top: 3px;
+  }
+
+  /* Domain impacts */
+  .domain-card {
+    background: var(--panel-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .domain-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+  }
+  .domain-card.risk::before { background: var(--teal-light); }
+  .domain-card.quality::before { background: var(--violet); }
+  .domain-card.cost::before { background: var(--sky); }
+
+  .domain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .domain-name {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .domain-card.risk .domain-name { color: var(--teal-light); }
+  .domain-card.quality .domain-name { color: var(--violet); }
+  .domain-card.cost .domain-name { color: var(--sky); }
+
+  .domain-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .domain-detail {
+    font-size: 11px;
+    color: var(--mist);
+    line-height: 1.5;
+  }
+
+  .domain-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .domain-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease-out;
+  }
+  .domain-card.risk .domain-bar-fill { background: var(--teal-light); }
+  .domain-card.quality .domain-bar-fill { background: var(--violet); }
+  .domain-card.cost .domain-bar-fill { background: var(--sky); }
+
+  /* Summary card */
+  .summary-card {
+    background: linear-gradient(135deg, rgba(13,148,136,0.12), rgba(109,40,217,0.08));
+    border: 1px solid rgba(13,148,136,0.2);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .summary-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .summary-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--teal-glow);
+  }
+  .summary-sub {
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+  .summary-roi {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(134,239,172,0.1);
+    color: var(--green);
+    border: 1px solid rgba(134,239,172,0.2);
+  }
+
+  /* Population info in panel */
+  .pop-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .pop-stat {
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .pop-stat-label { font-size: 9px; color: var(--mist); letter-spacing: 0.5px; text-transform: uppercase; }
+  .pop-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--white); font-weight: 500; margin-top: 2px; }
+
+  /* Confidence gauge */
+  .confidence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius-sm);
+  }
+  .confidence-label { font-size: 10px; color: var(--mist); font-weight: 500; }
+  .confidence-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .confidence-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--amber), var(--green)); width: 75%; }
+  .confidence-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green); font-weight: 500; }
+
+  /* Panel section divider */
+  .panel-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 16px 0;
+  }
+
+  /* Hidden panels */
+  .panel-pane { display: none; }
+  .panel-pane.active { display: block; }
+
+  /* Effects table in panel */
+  .effects-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .effects-item:last-child { border-bottom: none; }
+  .effect-name { font-size: 11px; color: var(--cloud); }
+  .effect-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; }
+  .effect-val.up { color: var(--green); }
+  .effect-val.down { color: var(--rose); }
+
+  /* Model badges in panel */
+  .model-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .model-badge {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .badge-v24 { background: rgba(56,189,248,0.1); color: var(--sky); border: 1px solid rgba(56,189,248,0.2); }
+  .badge-v28 { background: rgba(251,113,133,0.1); color: var(--rose); border: 1px solid rgba(251,113,133,0.2); }
+  .badge-stars { background: var(--violet-pale); color: var(--violet); border: 1px solid rgba(167,139,250,0.2); }
+  .badge-tcoc { background: var(--sky-pale); color: var(--sky); border: 1px solid rgba(56,189,248,0.2); }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 12px 18px;
+  }
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--violet);
+    opacity: 0.4;
+    animation: typingBounce 1.4s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+    40% { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* Welcome state */
+  .welcome {
+    text-align: center;
+    padding: 60px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .welcome-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--teal-deep), var(--violet-deep));
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .welcome h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: var(--white);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .welcome p {
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .welcome-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: left;
+  }
+  .welcome-card {
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .welcome-card:hover {
+    border-color: rgba(13,148,136,0.3);
+    background: var(--teal-pale);
+    transform: translateY(-2px);
+  }
+  .welcome-card-icon { font-size: 18px; margin-bottom: 8px; }
+  .welcome-card-title { font-size: 12px; font-weight: 600; color: var(--cloud); margin-bottom: 4px; }
+  .welcome-card-desc { font-size: 10px; color: var(--mist); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">Vantage<span>.</span></div>
+      <div class="sidebar-tagline">Healthcare Value Intelligence</div>
+    </div>
+
+    <button class="sidebar-new-btn" onclick="showWelcome()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      New Session
+    </button>
+
+    <div class="sidebar-section-label">Recent Sessions</div>
+    <div class="sidebar-sessions">
+      <div class="session-item active" onclick="loadConvo('triple')">
+        <div class="session-title">Triple-Play: Pharmacist HTN Program</div>
+        <div class="session-meta">
+          <span class="session-tag tag-triple">Triple</span>
+          2 turns · 8 min ago
+        </div>
+      </div>
+      <div class="session-item" onclick="loadConvo('v28')">
+        <div class="session-title">V28 Exposure — 85K FL Plan</div>
+        <div class="session-meta">
+          <span class="session-tag tag-risk">Risk</span>
+          4 turns · 1 hr ago
+        </div>
+      </div>
+      <div class="session-item" onclick="loadConvo('stars')">
+        <div class="session-title">Stars Gap Analysis — Path to 4.0</div>
+        <div class="session-meta">
+          <span class="session-tag tag-quality">Quality</span>
+          2 turns · 3 hrs ago
+        </div>
+      </div>
+      <div class="session-item" onclick="loadConvo('mlr')">
+        <div class="session-title">MLR Reduction — 88% to 86%</div>
+        <div class="session-meta">
+          <span class="session-tag tag-vbc">VBC</span>
+          2 turns · Yesterday
+        </div>
+      </div>
+      <div class="session-item" onclick="loadConvo('pa')">
+        <div class="session-title">PA Policy Relaxation Simulation</div>
+        <div class="session-meta">
+          <span class="session-tag tag-triple">Triple</span>
+          2 turns · 2 days ago
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-avatar">VP</div>
+      <div>
+        <div class="sidebar-user-name">VP, Strategy</div>
+        <div class="sidebar-user-role">Sunshine Health Plan · FL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN PANEL ═══ -->
+  <div class="main-panel">
+    <div class="main-header">
+      <div class="main-header-title" id="mainTitle">Triple-Play: Pharmacist HTN Program</div>
+      <div class="main-header-actions">
+        <button class="header-btn">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          History
+        </button>
+        <button class="header-btn export">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M2 10h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div class="conversation" id="convoArea">
+      <!-- Triple-Play conversation loaded by default -->
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <div class="input-wrapper">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1a6 6 0 100 12 6 6 0 000-12zM5 8h6M8 5v6" stroke="var(--mist)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <textarea class="input-field" rows="1" placeholder="Ask Vantage a strategic question..." id="inputField"></textarea>
+        </div>
+        <button class="send-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="input-hints">
+        <button class="input-hint" onclick="fillPrompt('What\'s our V28 exposure?')">V28 Exposure</button>
+        <button class="input-hint" onclick="fillPrompt('Path to 4 Stars?')">Stars Strategy</button>
+        <button class="input-hint" onclick="fillPrompt('Model a diabetes CDM program')">CDM ROI</button>
+        <button class="input-hint" onclick="fillPrompt('Compare 3 investment options')">Triple-Play</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT PANEL ═══ -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" onclick="switchTab(this, 'scenario')">Scenario</button>
+      <button class="panel-tab" onclick="switchTab(this, 'effects')">Effects</button>
+      <button class="panel-tab" onclick="switchTab(this, 'outputs')">Outputs</button>
+    </div>
+
+    <div class="panel-content">
+      <!-- Scenario Pane -->
+      <div class="panel-pane active" id="pane-scenario">
+        <div id="panelScenario">
+          <!-- Dynamically loaded -->
+        </div>
+      </div>
+
+      <!-- Effects Pane -->
+      <div class="panel-pane" id="pane-effects">
+        <div id="panelEffects">
+        </div>
+      </div>
+
+      <!-- Outputs Pane -->
+      <div class="panel-pane" id="pane-outputs">
+        <div id="panelOutputs">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ CONVERSATION DATA ═══
+const conversations = {
+  triple: {
+    title: 'Triple-Play: Pharmacist HTN Program',
+    turns: [
+      {
+        role: 'user',
+        text: `We're considering launching a pharmacist-led hypertension management program for about 400 of our highest-risk members — those with uncontrolled BP above 140/90 and at least one prior ER visit for hypertensive urgency. Show me the financial impact across all three of our P&L drivers.`
+      },
+      {
+        role: 'vantage',
+        html: `<div class="status-row">
+  <span class="status-pill pill-done">✓ Population filtered</span>
+  <span class="status-pill pill-done">✓ Risk model scored</span>
+  <span class="status-pill pill-done">✓ Quality model scored</span>
+  <span class="status-pill pill-done">✓ Cost model scored</span>
+</div>
+<pre><span class="white">━━ TRIPLE-PLAY SCENARIO: PHARMACIST HTN PROGRAM ━━━━━━━━━━━━━━━━━</span>
+
+Cohort: 412 members | Criteria: BP ≥140/90 + ≥1 HTN ER visit | Engaged: 65% (268)
+
+<span class="teal">DOMAIN 1 — RISK ADJUSTMENT</span>
+  Engaged members receiving structured monitoring encounters
+  Documentation generates additional HCC support for:
+  - Essential Hypertension with complications → specificity improvement
+  - CKD (comorbid, often underdocumented) → new HCC capture opportunity
+  Estimated new HCC capture: 38 members (14% of engaged)
+  Average new RAF delta: +0.18
+  <span class="teal">Risk revenue impact: +$277K/year</span>  (range: +$190K – +$390K)
+
+<span class="violet">DOMAIN 2 — STARS / QUALITY</span>
+  BP Control (CMS165): 268 engaged members eligible
+  Expected improvement: +0.22 pp (population-level effect on this measure)
+  Projected population-level BP Control rate increase: +2.4 pp
+  At 3.8 Stars, this measure moves you +0.06 Stars toward the 4.0 threshold
+  <span class="violet">Stars impact: +0.06 Stars composite</span>  (range: +0.03 – +0.09)
+  Quality bonus threshold value: $28M × (0.06 / 0.20 gap) = <span class="violet">$8.4M contingent value</span>
+
+<span class="sky">DOMAIN 3 — MEDICAL COST</span>
+  ER visit reduction (35% base effect on engaged cohort):
+    412 members × ~1.8 ER/year baseline × 0.35 × $2,200/visit = $907K
+  Inpatient reduction (25% base effect):
+    412 × 0.45 admissions/year × 0.25 × $18,500/admit = $858K
+  Program cost: −$145K (pharmacist time, outreach, monitoring)
+  <span class="sky">Net medical cost impact: −$1.62M/year</span>  (range: −$0.9M – −$2.4M)
+
+<span class="white">━━ COMBINED P&L SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Risk revenue:     <span class="teal">+$277K</span>
+  Medical savings:  <span class="sky">+$1,620K</span>
+  Program cost:       −$145K
+  ─────────────────────────────────────
+  Year 1 net value: <span class="white">+$1,752K</span>  (2.7× ROI)
+  Break-even:       Month 5
+
+  Stars value (contingent on full 4-star achievement): +$8.4M upside
+
+<span class="amber">Confidence: Medium-High | All effects have 80% CIs shown above.</span>
+Want to model program scale (200 vs 400 vs 600 members) or compare against a CDM alternative?</pre>
+<div class="report-card">
+  <div class="report-icon">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 1h5l4 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1.2"/><path d="M9 1v4h4" stroke="white" stroke-width="1.2"/></svg>
+  </div>
+  <div class="report-info">
+    <div class="report-name">htn_triple_play_analysis.html</div>
+    <div class="report-meta">Interactive dashboard · 412 members · Generated just now</div>
+  </div>
+  <div class="report-dl">Open →</div>
+</div>`
+      },
+      {
+        role: 'user',
+        text: `What if we scaled it to 800 members instead of 400? Does the ROI hold up, or does engagement drop off at that scale?`
+      },
+      {
+        role: 'vantage',
+        html: `<pre><span class="white">━━ SCALE SENSITIVITY: 400 vs 800 MEMBERS ━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+At 800 members, we're reaching beyond the highest-risk tier. The next 400 members
+have lower ER baseline rates (~0.9/year vs 1.8/year) and lower BP severity.
+Effect weights decay at lower acuity — modeled here as 65% of core effects.
+
+                         400 members      800 members      Marginal 400
+  ──────────────────────────────────────────────────────────────────────
+  Engaged (65%):             268              520              252
+  Risk revenue:           +$277K           +$411K           +$134K
+  Medical savings:       +$1,620K         +$2,280K          +$660K
+  Program cost:           −$145K           −$270K           −$125K
+  ──────────────────────────────────────────────────────────────────────
+  <span class="white">Net value:</span>            <span class="teal">+$1,752K</span>         <span class="teal">+$2,421K</span>          +$669K
+  ROI:                      2.7×             2.4×             1.8× ↓
+  Break-even:             Month 5          Month 6          Month 9
+
+<span class="white">Verdict: 800-member scale is worthwhile, but the marginal 400 are less efficient.</span>
+ROI drops from 2.7× to 1.8× on the marginal cohort — still positive, still above
+your typical program hurdle rate.
+
+<span class="amber">Recommendation:</span> Launch at 400, validate engagement and ER reduction in Month 3,
+then expand to 800 if engagement exceeds 60%. Stars benefit grows proportionally
+with scale — important if you're close to a cut-point threshold.</pre>`
+      }
+    ],
+    panel: {
+      scenario: `
+        <div class="context-card">
+          <div class="context-label">Population</div>
+          <div class="context-value">50,000 members · South Florida</div>
+          <div class="context-sub">Miami-Dade County (FIPS 12086)</div>
+          <div class="pop-stats">
+            <div class="pop-stat"><div class="pop-stat-label">Mean Age</div><div class="pop-stat-value">73.4</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">Female</div><div class="pop-stat-value">55.2%</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">Dual</div><div class="pop-stat-value">22.1%</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">ACO</div><div class="pop-stat-value">35.3%</div></div>
+          </div>
+        </div>
+        <div class="context-card">
+          <div class="context-label">Intervention</div>
+          <div class="context-value">Pharmacist-Led HTN Program</div>
+          <div class="context-sub">412 eligible · 268 engaged (65%)</div>
+          <div class="model-badges">
+            <span class="model-badge badge-v28">V28</span>
+            <span class="model-badge badge-stars">Stars</span>
+            <span class="model-badge badge-tcoc">TCOC</span>
+          </div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="domain-card risk">
+          <div class="domain-header"><div class="domain-name">Risk Adjustment</div></div>
+          <div class="domain-value">+$277K</div>
+          <div class="domain-detail">38 new HCC captures · Avg RAF Δ +0.18</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:22%"></div></div>
+        </div>
+        <div class="domain-card quality">
+          <div class="domain-header"><div class="domain-name">Stars / Quality</div></div>
+          <div class="domain-value">+0.06 Stars</div>
+          <div class="domain-detail">BP Control +2.4pp · $8.4M contingent bonus</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:30%"></div></div>
+        </div>
+        <div class="domain-card cost">
+          <div class="domain-header"><div class="domain-name">Medical Cost</div></div>
+          <div class="domain-value">−$1.62M</div>
+          <div class="domain-detail">ER −35% · IP −25% · Net of program cost</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:65%"></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Year 1 Net Value</div>
+          <div class="summary-value">+$1.75M</div>
+          <div class="summary-sub">Break-even: Month 5</div>
+          <div class="summary-roi">↑ 2.7× ROI</div>
+        </div>
+        <div class="confidence">
+          <div class="confidence-label">Confidence</div>
+          <div class="confidence-bar"><div class="confidence-fill" style="width:75%"></div></div>
+          <div class="confidence-val">Med-High</div>
+        </div>
+      `,
+      effects: `
+        <div class="context-card">
+          <div class="context-label">Applied Effect Weights</div>
+          <div class="context-sub" style="margin-top:4px">Source: Literature-based defaults</div>
+        </div>
+        <div class="effects-item"><div class="effect-name">ER Visit Reduction</div><div class="effect-val down">−35%</div></div>
+        <div class="effects-item"><div class="effect-name">IP Admission Reduction</div><div class="effect-val down">−25%</div></div>
+        <div class="effects-item"><div class="effect-name">BP Control Rate Improvement</div><div class="effect-val up">+22pp</div></div>
+        <div class="effects-item"><div class="effect-name">HCC Capture Rate (new)</div><div class="effect-val up">14%</div></div>
+        <div class="effects-item"><div class="effect-name">Member Engagement Rate</div><div class="effect-val up">65%</div></div>
+        <div class="effects-item"><div class="effect-name">Acuity Decay (800 scale)</div><div class="effect-val down">65%</div></div>
+        <div class="panel-divider"></div>
+        <div class="context-card">
+          <div class="context-label">Sources</div>
+          <div class="context-sub" style="margin-top:4px;line-height:1.8">
+            Carter et al. — JAMA Internal Med. 2020<br>
+            Annals of Internal Medicine 2022<br>
+            JMCP 2022 · Confidence: High
+          </div>
+        </div>
+      `,
+      outputs: `
+        <div class="context-card">
+          <div class="context-label">Generated Outputs</div>
+        </div>
+        <div class="report-card" style="margin:0 0 8px">
+          <div class="report-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h5l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1"/></svg></div>
+          <div class="report-info"><div class="report-name">htn_triple_play.html</div><div class="report-meta">Interactive dashboard</div></div>
+          <div class="report-dl">Open</div>
+        </div>
+        <div class="report-card" style="margin:0 0 8px">
+          <div class="report-icon" style="background:linear-gradient(135deg,var(--violet-deep),var(--violet))"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h5l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1"/></svg></div>
+          <div class="report-info"><div class="report-name">htn_exec_summary.pptx</div><div class="report-meta">Board-ready slides · 8 pages</div></div>
+          <div class="report-dl">Open</div>
+        </div>
+        <div class="report-card" style="margin:0 0 8px">
+          <div class="report-icon" style="background:linear-gradient(135deg,var(--sky),#0284c7)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h5l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1"/></svg></div>
+          <div class="report-info"><div class="report-name">scale_sensitivity.csv</div><div class="report-meta">400 vs 800 comparison data</div></div>
+          <div class="report-dl">Open</div>
+        </div>
+      `
+    }
+  },
+
+  v28: {
+    title: 'V28 Exposure — 85K FL Plan',
+    turns: [
+      {
+        role: 'user',
+        text: `Our CFO is asking about V28 exposure. We have 85,000 members in Florida. What's the headline number and where does it come from?`
+      },
+      {
+        role: 'vantage',
+        html: `<div class="status-row">
+  <span class="status-pill pill-done">✓ Population generated</span>
+  <span class="status-pill pill-done">✓ Dual-scored V24/V28</span>
+</div>
+<pre><span class="white">━━ V28 EXPOSURE — 85,000 MEMBERS, FLORIDA ━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  V24 mean RAF:    <span class="teal">1.891</span>  (Florida MA plans run higher than national average)
+  V28 mean RAF:    <span class="teal">1.824</span>
+  Per-member delta: <span class="rose">−0.067</span>  (V28 impact is above national average for FL)
+
+  <span class="white">Annual revenue exposure at $1,050 PMPM:</span>
+  <span class="rose">−$71.4M/year</span>  (range: −$58M – −$86M)
+
+Top HCC drivers:
+  HCC 18 (DM complications):   24,000 members  → −$26.2M
+  HCC 85 (CHF):                11,900 members  → −$11.1M
+  HCC 111 (COPD):              15,300 members  → − $7.8M
+  HCC 22 (Morbid obesity):     10,200 members  → − $5.4M
+  HCC 108 (Vascular disease):  12,750 members  → − $4.6M
+  ──────────────────────────────────────────────────────
+  Top 5 subtotal:                              −$55.1M (77%)
+
+<span class="amber">Why Florida is higher:</span> Florida MA populations have above-average HCC 18 and HCC 85
+prevalence (older, higher chronic disease burden, high DSNP concentration).
+V28 hits these conditions harder than the national average.
+
+Good news — not all $71M is unrecoverable. Want me to model the mitigation options?</pre>`
+      },
+      {
+        role: 'user',
+        text: `Yes — what can we actually recover, and how quickly?`
+      },
+      {
+        role: 'vantage',
+        html: `<pre><span class="white">━━ V28 MITIGATION STRATEGY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Three mitigation pathways, ordered by speed to impact:
+
+<span class="teal">PATHWAY 1 — Documentation Specificity (Fastest, 6–12 months)</span>
+  Target: members with V28-reclassified HCCs who have more specific ICD-10
+  options that are better supported under V28
+  Recovery rate: 35% of exposure (base), range 20–52%
+  <span class="teal">Estimated recovery: $25M</span>
+  Method: provider education + coder feedback for HCC 18, 85, 111 conditions
+  RADV impact: ↑ documentation specificity also reduces audit risk
+
+<span class="teal">PATHWAY 2 — New V28 Coding Opportunities (12–18 months)</span>
+  V28 adds new HCCs and restructures some hierarchies.
+  ~8% of members have conditions V28 values that were previously uncoded.
+  <span class="teal">Estimated recovery: $5.7M</span>
+  Method: dual-scoring gap analysis + targeted IHA for identified members
+
+<span class="teal">PATHWAY 3 — Retrospective Chart Review (12–24 months)</span>
+  Full chart review program focused on V28 documentation requirements
+  <span class="teal">Estimated recovery: $7.3M</span>
+  Method: chart review vendor, 2-year lookback, V28-specific coding criteria
+
+<span class="white">━━ MITIGATION SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Gross exposure:                   −$71.4M
+  Pathway 1 recovery (Year 1):      +$25.0M
+  Pathway 2 recovery (Year 1–2):     +$5.7M
+  Pathway 3 recovery (Year 2):       +$7.3M
+  Program investment:                −$3.2M
+  ──────────────────────────────────────────
+  <span class="white">Net remaining exposure (Year 2):</span>  <span class="rose">−$36.6M</span>  (vs. −$71.4M unmitigated)
+
+Mitigation recovers ~49% of gross exposure at 2.7× ROI on program investment.</pre>
+<div class="report-card">
+  <div class="report-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 1h5l4 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1.2"/><path d="M9 1v4h4" stroke="white" stroke-width="1.2"/></svg></div>
+  <div class="report-info">
+    <div class="report-name">v28_florida_85k.html</div>
+    <div class="report-meta">Shareable report · Ready for board presentation</div>
+  </div>
+  <div class="report-dl">Open →</div>
+</div>`
+      }
+    ],
+    panel: {
+      scenario: `
+        <div class="context-card">
+          <div class="context-label">Population</div>
+          <div class="context-value">85,000 members · Florida</div>
+          <div class="context-sub">Statewide MA plan</div>
+          <div class="pop-stats">
+            <div class="pop-stat"><div class="pop-stat-label">V24 RAF</div><div class="pop-stat-value">1.891</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">V28 RAF</div><div class="pop-stat-value">1.824</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">Delta</div><div class="pop-stat-value" style="color:var(--rose)">−0.067</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">PMPM</div><div class="pop-stat-value">$1,050</div></div>
+          </div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="domain-card risk">
+          <div class="domain-header"><div class="domain-name">V28 Gross Exposure</div></div>
+          <div class="domain-value" style="color:var(--rose)">−$71.4M</div>
+          <div class="domain-detail">Top 5 HCCs drive 77% of total exposure</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:100%;background:var(--rose)"></div></div>
+        </div>
+        <div class="domain-card quality" style="border-color:var(--teal-pale)">
+          <div class="domain-header"><div class="domain-name" style="color:var(--teal-light)">Recoverable (3 Pathways)</div></div>
+          <div class="domain-value" style="color:var(--teal-glow)">+$38.0M</div>
+          <div class="domain-detail">49% recovery · 2.7× ROI on $3.2M investment</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:49%;background:var(--teal-light)"></div></div>
+        </div>
+        <div class="summary-card" style="background:linear-gradient(135deg,rgba(251,113,133,0.1),rgba(13,148,136,0.08));border-color:rgba(251,113,133,0.2)">
+          <div class="summary-label" style="color:var(--rose)">Net Remaining Exposure</div>
+          <div class="summary-value" style="color:var(--rose)">−$36.6M</div>
+          <div class="summary-sub">After full mitigation program (Year 2)</div>
+        </div>
+      `,
+      effects: `
+        <div class="context-card"><div class="context-label">V28 Model Parameters</div></div>
+        <div class="effects-item"><div class="effect-name">V24 → V28 Coefficient Shift</div><div class="effect-val down">−3.5%</div></div>
+        <div class="effects-item"><div class="effect-name">Pathway 1 Recovery Rate</div><div class="effect-val up">35%</div></div>
+        <div class="effects-item"><div class="effect-name">Pathway 2 Recovery Rate</div><div class="effect-val up">8%</div></div>
+        <div class="effects-item"><div class="effect-name">RADV Risk Reduction</div><div class="effect-val up">↑ Improved</div></div>
+        <div class="panel-divider"></div>
+        <div class="context-card"><div class="context-label">Model Versions</div>
+          <div class="model-badges"><span class="model-badge badge-v24">V24</span><span class="model-badge badge-v28">V28</span></div>
+        </div>
+      `,
+      outputs: `
+        <div class="context-card"><div class="context-label">Generated Outputs</div></div>
+        <div class="report-card" style="margin:0 0 8px">
+          <div class="report-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h5l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1"/></svg></div>
+          <div class="report-info"><div class="report-name">v28_florida_85k.html</div><div class="report-meta">Board-ready dashboard</div></div>
+          <div class="report-dl">Open</div>
+        </div>
+        <div class="report-card" style="margin:0 0 8px">
+          <div class="report-icon" style="background:linear-gradient(135deg,var(--violet-deep),var(--violet))"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h5l3 3v8a1 1 0 01-1 1H3a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="white" stroke-width="1"/></svg></div>
+          <div class="report-info"><div class="report-name">v28_hcc_breakdown.csv</div><div class="report-meta">All HCC categories with deltas</div></div>
+          <div class="report-dl">Open</div>
+        </div>
+      `
+    }
+  },
+
+  stars: {
+    title: 'Stars Gap Analysis — Path to 4.0',
+    turns: [
+      {
+        role: 'user',
+        text: `We're currently sitting at 3.8 Stars. Our RASA adherence rate is 72% and our BP Control rate is 58%. We need to hit 4 Stars for the quality bonus. What's the fastest path?`
+      },
+      {
+        role: 'vantage',
+        html: `<pre><span class="white">━━ STARS CUT-POINT ANALYSIS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Current composite: <span class="amber">3.8 Stars</span> | Target: <span class="teal">4.0 Stars</span> | Gap: +0.20 points
+
+National cut-point for 4 Stars (estimated based on 2024 distribution):
+  Clinical Quality: ~74th percentile | Experience: ~72nd percentile
+
+<span class="white">━━ YOUR HIGHEST-LEVERAGE MOVES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Measure              Current  Target   Gap    Stars Weight  Potential Lift
+  ─────────────────────────────────────────────────────────────────────────
+  RASA Adherence         72%     80%     +8pp   ★★★★★         +0.09 Stars
+  BP Control (CMS165)    58%     76%    +18pp   ★★★★★         +0.06 Stars
+  CAHPS: Getting Care    62nd    70th    +8pct   ★★★★          +0.05 Stars
+  ─────────────────────────────────────────────────────────────────────────
+  Combined potential:                                          +0.20 Stars ✓
+
+<span class="white">Recommendation: all three moves together get you to 4.0.</span>
+
+  Move 1 — RASA: <span class="teal">Pharmacy outreach + auto-refill for members 60–79% PDC</span>
+    Effect weight: +0.08 pp adherence (base); range +0.04 – +0.14
+    Confidence: High | Source: JMCP 2022
+
+  Move 2 — BP Control: <span class="teal">Pharmacist-led HTN program for members ≥140/90</span>
+    Effect weight: +0.22 pp BP control rate (base); range +0.12 – +0.35
+    Confidence: High | Source: Annals Internal Medicine 2022
+
+  Move 3 — CAHPS Access: <span class="teal">Telehealth benefit + after-hours nurse line</span>
+    Effect weight: +0.05 percentile improvement; range +0.02 – +0.09
+    Confidence: Medium | Source: JAMA Network Open 2022
+
+<span class="amber">⚠ Cross-domain note:</span> Move 2 (HTN program) also improves RAF revenue and reduces TCOC.
+Run a full Triple-Play scenario to see the combined financial impact?</pre>`
+      }
+    ],
+    panel: {
+      scenario: `
+        <div class="context-card">
+          <div class="context-label">Stars Position</div>
+          <div class="context-value">3.8 → 4.0 Target</div>
+          <div class="context-sub">Gap: +0.20 composite points</div>
+          <div class="model-badges" style="margin-top:10px">
+            <span class="model-badge badge-stars">Stars</span>
+          </div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="domain-card quality">
+          <div class="domain-header"><div class="domain-name">RASA Adherence</div></div>
+          <div class="domain-value">72% → 80%</div>
+          <div class="domain-detail">+0.09 Stars lift · 5-star weight</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:72%"></div></div>
+        </div>
+        <div class="domain-card quality">
+          <div class="domain-header"><div class="domain-name">BP Control (CMS165)</div></div>
+          <div class="domain-value">58% → 76%</div>
+          <div class="domain-detail">+0.06 Stars lift · 5-star weight</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:58%"></div></div>
+        </div>
+        <div class="domain-card quality">
+          <div class="domain-header"><div class="domain-name">CAHPS: Getting Care</div></div>
+          <div class="domain-value">62nd → 70th</div>
+          <div class="domain-detail">+0.05 Stars lift · 4-star weight</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:62%"></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Quality Bonus at 4.0 Stars</div>
+          <div class="summary-value">$28M</div>
+          <div class="summary-sub">Annual quality bonus revenue at risk</div>
+        </div>
+      `,
+      effects: `
+        <div class="context-card"><div class="context-label">Applied Effect Weights</div></div>
+        <div class="effects-item"><div class="effect-name">RASA Adherence Improvement</div><div class="effect-val up">+8pp</div></div>
+        <div class="effects-item"><div class="effect-name">BP Control Rate Improvement</div><div class="effect-val up">+22pp</div></div>
+        <div class="effects-item"><div class="effect-name">CAHPS Access Improvement</div><div class="effect-val up">+5 pctl</div></div>
+        <div class="panel-divider"></div>
+        <div class="context-card"><div class="context-label">Key Insight</div>
+          <div class="context-sub" style="margin-top:4px">Cut-points shift annually based on national distribution. A plan can improve measure rates and still fall in Stars if the national distribution improves faster.</div>
+        </div>
+      `,
+      outputs: `
+        <div class="context-card"><div class="context-label">No reports generated yet</div>
+          <div class="context-sub" style="margin-top:4px">Run a Triple-Play scenario to generate a shareable analysis.</div>
+        </div>
+      `
+    }
+  },
+
+  mlr: {
+    title: 'MLR Reduction — 88% to 86%',
+    turns: [
+      {
+        role: 'user',
+        text: `Our medical loss ratio is running at 88%. We need to get it below 86% to maintain our CMS rebate runway. What are our biggest cost drivers and what levers move the needle fastest?`
+      },
+      {
+        role: 'vantage',
+        html: `<pre><span class="white">━━ MLR ANALYSIS — 88% CURRENT, 86% TARGET ━━━━━━━━━━━━━━━━━━━━━━</span>
+
+For a 50,000-member plan at $1,050 PMPM:
+  Total revenue:     $630M/year
+  Medical cost (88%): $554.4M | Target (86%): $541.8M
+  <span class="white">Required reduction: $12.6M/year (2.3% TCOC reduction)</span>
+
+Typical MA cost decomposition for this population profile:
+  Inpatient:         34%  ($188M) — highest single driver
+  Outpatient/ER:     22%  ($122M) — ER primary target
+  Post-acute (SNF):  16%   ($89M) — site-of-service opportunity
+  Physician/Prof.:   15%   ($83M) — network optimization
+  Pharmacy:          13%   ($72M) — formulary/adherence levers
+
+<span class="white">━━ FASTEST LEVERS TO 86% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Lever                         Expected Savings    Confidence
+  ──────────────────────────────────────────────────────────────
+  CHF CDM program (3,500 mbrs)   $8.4M − $13.4M    High
+  ASC steerage (eligible proc.)  $3.8M − $6.2M     High
+  Preferred SNF network          $2.1M − $3.6M     High
+  Generic/biosimilar pharmacy    $1.8M − $4.1M     High
+  ──────────────────────────────────────────────────────────────
+  Combined (conservative low):   <span class="teal">$16.1M</span> → reaches 86% target ✓
+
+  Recommended sequencing:
+  Month 1-3:   CHF CDM + SNF network (fastest implementation)
+  Month 3-6:   ASC steerage program launch
+  Month 6-12:  Generic conversion + biosimilar adoption
+
+<span class="amber">⚠ Cross-domain note:</span> CHF CDM also improves RAF revenue (HCC 85 specificity)
+and Stars (Heart Failure measures). Net P&L impact is larger than the cost savings alone.
+Want the full Triple-Play analysis?</pre>`
+      }
+    ],
+    panel: {
+      scenario: `
+        <div class="context-card">
+          <div class="context-label">MLR Target</div>
+          <div class="context-value">88% → 86%</div>
+          <div class="context-sub">Gap: $12.6M annual reduction needed</div>
+        </div>
+        <div class="context-card">
+          <div class="context-label">Plan Profile</div>
+          <div class="context-value">50,000 members · $1,050 PMPM</div>
+          <div class="pop-stats">
+            <div class="pop-stat"><div class="pop-stat-label">Revenue</div><div class="pop-stat-value">$630M</div></div>
+            <div class="pop-stat"><div class="pop-stat-label">Med Cost</div><div class="pop-stat-value">$554M</div></div>
+          </div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="domain-card cost">
+          <div class="domain-header"><div class="domain-name">CHF CDM Program</div></div>
+          <div class="domain-value">$8.4–$13.4M</div>
+          <div class="domain-detail">3,500 members · High confidence</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:80%"></div></div>
+        </div>
+        <div class="domain-card cost">
+          <div class="domain-header"><div class="domain-name">ASC Steerage</div></div>
+          <div class="domain-value">$3.8–$6.2M</div>
+          <div class="domain-detail">Eligible procedures · High confidence</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:50%"></div></div>
+        </div>
+        <div class="domain-card cost">
+          <div class="domain-header"><div class="domain-name">Preferred SNF Network</div></div>
+          <div class="domain-value">$2.1–$3.6M</div>
+          <div class="domain-detail">Site-of-service · High confidence</div>
+          <div class="domain-bar"><div class="domain-bar-fill" style="width:30%"></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Combined Conservative Savings</div>
+          <div class="summary-value">$16.1M</div>
+          <div class="summary-sub">Exceeds $12.6M target by $3.5M buffer</div>
+          <div class="summary-roi">✓ Reaches 86% MLR</div>
+        </div>
+      `,
+      effects: `
+        <div class="context-card"><div class="context-label">Cost Decomposition</div></div>
+        <div class="effects-item"><div class="effect-name">Inpatient (34%)</div><div class="effect-val">$188M</div></div>
+        <div class="effects-item"><div class="effect-name">Outpatient/ER (22%)</div><div class="effect-val">$122M</div></div>
+        <div class="effects-item"><div class="effect-name">Post-acute (16%)</div><div class="effect-val">$89M</div></div>
+        <div class="effects-item"><div class="effect-name">Physician (15%)</div><div class="effect-val">$83M</div></div>
+        <div class="effects-item"><div class="effect-name">Pharmacy (13%)</div><div class="effect-val">$72M</div></div>
+      `,
+      outputs: `
+        <div class="context-card"><div class="context-label">No reports generated yet</div>
+          <div class="context-sub" style="margin-top:4px">Run a Triple-Play to generate a comprehensive MLR reduction plan.</div>
+        </div>
+      `
+    }
+  },
+
+  pa: {
+    title: 'PA Policy Relaxation Simulation',
+    turns: [
+      {
+        role: 'user',
+        text: `We're considering relaxing PA requirements for our ACO-attributed members — raising approval rates from 88% to 95% for imaging and specialist referrals. Model the net financial impact. Don't just tell me the cost increase — give me the full picture.`
+      },
+      {
+        role: 'vantage',
+        html: `<div class="status-row">
+  <span class="status-pill pill-done">✓ ACO cohort filtered</span>
+  <span class="status-pill pill-done">✓ PA utilization modeled</span>
+  <span class="status-pill pill-done">✓ Cross-domain scored</span>
+</div>
+<pre><span class="white">━━ PA POLICY SIMULATION — ACO RELAXATION ━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Scope: ACO-attributed members (35.3% of plan = 17,650 members)
+PA change: 88% → 95% approval rate for imaging + specialist referrals
+
+<span class="white">GROSS COST IMPACT (before offsets)</span>
+  +7pp approval rate × 1.8 volume increase per pp = +12.6% more approved services
+  Applied to ACO imaging + specialist baseline: <span class="rose">+$8.2M – +$12.4M gross cost</span>
+
+<span class="white">BUT — HERE'S THE FULL PICTURE:</span>
+
+<span class="teal">OFFSET 1 — Earlier diagnosis captures revenue (Risk)</span>
+  More specialist visits → more documented conditions
+  Estimated new HCC captures from specialist encounters: 580 members
+  Average RAF delta: +0.14
+  <span class="teal">Risk revenue gain: +$2.4M</span>
+
+<span class="violet">OFFSET 2 — Provider satisfaction → Stars (Quality)</span>
+  ACO providers report PA burden as top dissatisfier
+  CAHPS "Getting Needed Care" improvement: +3 percentile points
+  <span class="violet">Stars contribution: +0.02 composite</span>
+
+<span class="sky">OFFSET 3 — Downstream cost avoidance</span>
+  Earlier imaging catches conditions before ER presentations
+  Estimated ER/IP avoidance from earlier intervention: <span class="sky">−$1.8M</span>
+  PA administrative cost elimination: <span class="sky">−$1.1M</span>
+
+<span class="white">━━ NET IMPACT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Gross cost increase:       +$10.3M  (midpoint)
+  Risk revenue offset:       − $2.4M
+  ER/IP avoidance:           − $1.8M
+  Admin savings:             − $1.1M
+  ──────────────────────────────────────
+  <span class="white">True net cost:</span>             <span class="amber">+$5.0M</span>  (vs. +$10.3M headline)
+
+<span class="amber">The $5M net is 52% less than the gross — which is why the "full picture" matters.</span>
+Factor in the Stars impact and shared savings implications, and the ACO economics
+may justify the policy change depending on your contract terms.</pre>`
+      }
+    ],
+    panel: {
+      scenario: `
+        <div class="context-card">
+          <div class="context-label">Policy Change</div>
+          <div class="context-value">PA Approval: 88% → 95%</div>
+          <div class="context-sub">ACO-attributed · 17,650 members</div>
+          <div class="model-badges" style="margin-top:10px">
+            <span class="model-badge badge-v28">Risk</span>
+            <span class="model-badge badge-stars">Stars</span>
+            <span class="model-badge badge-tcoc">TCOC</span>
+          </div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="domain-card cost" style="border-color:rgba(251,113,133,0.15)">
+          <div class="domain-header"><div class="domain-name" style="color:var(--rose)">Gross Cost Increase</div></div>
+          <div class="domain-value" style="color:var(--rose)">+$10.3M</div>
+          <div class="domain-detail">Headline number before offsets</div>
+        </div>
+        <div class="domain-card risk">
+          <div class="domain-header"><div class="domain-name">Risk Revenue Offset</div></div>
+          <div class="domain-value">−$2.4M</div>
+          <div class="domain-detail">580 new HCC captures</div>
+        </div>
+        <div class="domain-card cost">
+          <div class="domain-header"><div class="domain-name">ER/IP + Admin Savings</div></div>
+          <div class="domain-value">−$2.9M</div>
+          <div class="domain-detail">Earlier intervention + PA admin eliminated</div>
+        </div>
+        <div class="summary-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(13,148,136,0.05));border-color:rgba(245,158,11,0.2)">
+          <div class="summary-label" style="color:var(--amber)">True Net Cost</div>
+          <div class="summary-value" style="color:var(--amber)">+$5.0M</div>
+          <div class="summary-sub">52% less than the gross headline</div>
+        </div>
+      `,
+      effects: `
+        <div class="context-card"><div class="context-label">PA Model Parameters</div></div>
+        <div class="effects-item"><div class="effect-name">Volume Increase per pp</div><div class="effect-val">1.8×</div></div>
+        <div class="effects-item"><div class="effect-name">New HCC Capture Rate</div><div class="effect-val up">3.3%</div></div>
+        <div class="effects-item"><div class="effect-name">ER Avoidance Rate</div><div class="effect-val up">−8%</div></div>
+        <div class="effects-item"><div class="effect-name">CAHPS Improvement</div><div class="effect-val up">+3 pctl</div></div>
+        <div class="effects-item"><div class="effect-name">Admin Cost per PA</div><div class="effect-val">$62</div></div>
+      `,
+      outputs: `
+        <div class="context-card"><div class="context-label">No reports generated yet</div>
+          <div class="context-sub" style="margin-top:4px">Ask Vantage to generate a board-ready comparison report.</div>
+        </div>
+      `
+    }
+  }
+};
+
+// ═══ UI LOGIC ═══
+function renderConversation(id) {
+  const convo = conversations[id];
+  const area = document.getElementById('convoArea');
+  document.getElementById('mainTitle').textContent = convo.title;
+
+  let html = '';
+  convo.turns.forEach((turn, i) => {
+    if (turn.role === 'user') {
+      html += `<div class="turn" style="animation-delay:${i * 0.1}s">
+        <div class="turn-label user"><span class="dot"></span> You</div>
+        <div class="user-msg">${turn.text}</div>
+      </div>`;
+    } else {
+      html += `<div class="turn" style="animation-delay:${i * 0.1}s">
+        <div class="turn-label vantage"><span class="dot"></span> Vantage</div>
+        <div class="vantage-msg">${turn.html}</div>
+      </div>`;
+    }
+  });
+  area.innerHTML = html;
+
+  // Update panel
+  document.getElementById('panelScenario').innerHTML = convo.panel.scenario;
+  document.getElementById('panelEffects').innerHTML = convo.panel.effects;
+  document.getElementById('panelOutputs').innerHTML = convo.panel.outputs;
+
+  // Update sidebar active state
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+  const items = document.querySelectorAll('.session-item');
+  const keys = ['triple','v28','stars','mlr','pa'];
+  const idx = keys.indexOf(id);
+  if (idx >= 0 && items[idx]) items[idx].classList.add('active');
+}
+
+function loadConvo(id) {
+  renderConversation(id);
+  // Reset to scenario tab
+  switchTab(document.querySelector('.panel-tab'), 'scenario');
+}
+
+function switchTab(btn, pane) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + pane).classList.add('active');
+}
+
+function fillPrompt(text) {
+  document.getElementById('inputField').value = text;
+  document.getElementById('inputField').focus();
+}
+
+function showWelcome() {
+  document.getElementById('mainTitle').textContent = 'New Session';
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('convoArea').innerHTML = `
+    <div class="welcome">
+      <div class="welcome-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>What strategic question can Vantage model for you?</h2>
+      <p>Describe a scenario — an investment decision, a regulatory impact question, or a program comparison — and Vantage will model the cross-domain financial impact.</p>
+      <div class="welcome-cards">
+        <div class="welcome-card" onclick="fillPrompt('We have 85,000 members in Florida. What\\'s our V28 exposure?')">
+          <div class="welcome-card-icon">📊</div>
+          <div class="welcome-card-title">V28 Exposure Analysis</div>
+          <div class="welcome-card-desc">Model the revenue impact of the V24→V28 transition for your population</div>
+        </div>
+        <div class="welcome-card" onclick="fillPrompt('We\\'re at 3.8 Stars. What\\'s the fastest path to 4.0?')">
+          <div class="welcome-card-icon">⭐</div>
+          <div class="welcome-card-title">Stars Strategy</div>
+          <div class="welcome-card-desc">Identify the highest-leverage quality measures to move your Stars rating</div>
+        </div>
+        <div class="welcome-card" onclick="fillPrompt('We have $3M to invest. Compare a diabetes CDM, HTN program, and SNF network.')">
+          <div class="welcome-card-icon">🎯</div>
+          <div class="welcome-card-title">Triple-Play Comparison</div>
+          <div class="welcome-card-desc">Model how clinical programs impact risk, quality, and cost simultaneously</div>
+        </div>
+        <div class="welcome-card" onclick="fillPrompt('Our MLR is 88%. We need to get below 86%. What levers move the needle?')">
+          <div class="welcome-card-icon">💰</div>
+          <div class="welcome-card-title">MLR Reduction</div>
+          <div class="welcome-card-desc">Find the fastest path to your medical loss ratio target</div>
+        </div>
+      </div>
+    </div>
+  `;
+  // Clear panel
+  document.getElementById('panelScenario').innerHTML = `
+    <div class="context-card">
+      <div class="context-label">No Active Scenario</div>
+      <div class="context-sub" style="margin-top:4px">Start a conversation to see scenario context, domain impacts, and generated outputs here.</div>
+    </div>
+  `;
+  document.getElementById('panelEffects').innerHTML = '';
+  document.getElementById('panelOutputs').innerHTML = '';
+}
+
+// Load default conversation
+renderConversation('triple');
+</script>
+</body>
+</html>

@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Architecture Reference · March 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:         #0c1222;
+    --slate:       #1a2332;
+    --steel:       #3d4f63;
+    --mist:        #7b8fa3;
+    --cloud:       #b8c5d3;
+    --frost:       #e1e8ef;
+    --snow:        #f5f7fa;
+    --white:       #ffffff;
+    --teal:        #0d9488;
+    --teal-deep:   #0a5e56;
+    --teal-light:  #2dd4bf;
+    --teal-glow:   #99f6e4;
+    --teal-pale:   #f0fdfa;
+    --amber:       #b45309;
+    --amber-light: #f59e0b;
+    --amber-pale:  #fffbeb;
+    --violet:      #6d28d9;
+    --violet-light:#a78bfa;
+    --violet-pale: #f5f3ff;
+    --sky:         #0369a1;
+    --sky-light:   #38bdf8;
+    --sky-pale:    #f0f9ff;
+    --rose:        #be123c;
+    --rose-light:  #fb7185;
+    --rose-pale:   #fff1f2;
+    --green:       #15803d;
+    --green-pale:  #f0fdf4;
+    --radius:      10px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:   0 4px 20px rgba(0,0,0,0.06);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--snow);
+    color: var(--slate);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    padding: 64px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 50%, rgba(13,148,136,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(109,40,217,0.08) 0%, transparent 60%);
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; padding: 0 48px; position: relative; }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--teal-light); font-weight: 600; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 28px; height: 1px; background: var(--teal-light);
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 44px; font-weight: 700; color: var(--white);
+    line-height: 1.15; margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: italic; color: var(--teal-light); }
+  .hero-sub {
+    font-size: 16px; color: var(--cloud); max-width: 560px; line-height: 1.65;
+    margin-bottom: 32px;
+  }
+  .hero-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .hero-badge {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mist);
+  }
+  .hero-badge span { color: var(--teal-glow); }
+
+  /* ── NAV ── */
+  .doc-nav {
+    background: var(--white); border-bottom: 1px solid var(--frost);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .doc-nav-inner {
+    max-width: 900px; margin: 0 auto; padding: 0 48px;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  .doc-nav a {
+    display: block; padding: 14px 18px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    color: var(--mist); text-decoration: none; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .doc-nav a:hover { color: var(--teal); border-bottom-color: var(--teal-light); }
+
+  /* ── SECTIONS ── */
+  .section {
+    max-width: 900px; margin: 0 auto; padding: 56px 48px;
+    border-bottom: 1px solid var(--frost);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-label {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--mist); font-weight: 600; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label .num {
+    background: var(--ink); color: var(--teal-light);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 30px; font-weight: 600; color: var(--ink);
+    line-height: 1.25; margin-bottom: 20px;
+  }
+  h2 em { font-style: italic; color: var(--teal); }
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px; font-weight: 600; color: var(--ink);
+    margin: 28px 0 12px;
+  }
+  h4 { font-size: 14px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
+  p { font-size: 14.5px; color: var(--steel); margin-bottom: 14px; line-height: 1.75; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--slate); font-weight: 600; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: var(--radius); padding: 18px 22px; margin: 20px 0;
+    border-left: 3px solid;
+    font-size: 13.5px; line-height: 1.7; color: var(--steel);
+  }
+  .callout-label {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 8px;
+  }
+  .callout.teal  { background: var(--teal-pale);   border-color: var(--teal);         }
+  .callout.teal .callout-label  { color: var(--teal-deep); }
+  .callout.amber { background: var(--amber-pale);  border-color: var(--amber-light);  }
+  .callout.amber .callout-label { color: var(--amber); }
+  .callout.violet{ background: var(--violet-pale); border-color: var(--violet-light); }
+  .callout.violet .callout-label{ color: var(--violet); }
+  .callout.sky   { background: var(--sky-pale);    border-color: var(--sky-light);    }
+  .callout.sky .callout-label   { color: var(--sky); }
+  .callout.rose  { background: var(--rose-pale);   border-color: var(--rose-light);   }
+  .callout.rose .callout-label  { color: var(--rose); }
+  .callout.green { background: var(--green-pale);  border-color: var(--green);        }
+  .callout.green .callout-label { color: var(--green); }
+
+  /* ── DOMAIN GRID ── */
+  .domain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .domain-card {
+    background: var(--white); border-radius: var(--radius);
+    border: 1px solid var(--frost); border-top: 3px solid var(--color, var(--teal));
+    padding: 22px 24px; box-shadow: var(--shadow-sm);
+  }
+  .domain-card.risk    { --color: var(--teal); }
+  .domain-card.quality { --color: var(--violet); }
+  .domain-card.cost    { --color: var(--sky); }
+  .domain-card.radv    { --color: var(--rose); }
+  .domain-card.wide    { grid-column: 1 / -1; --color: var(--amber); }
+  .domain-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 12px; margin-bottom: 10px;
+  }
+  .domain-card.risk .domain-badge    { background: var(--teal-pale); color: var(--teal-deep); }
+  .domain-card.quality .domain-badge { background: var(--violet-pale); color: var(--violet); }
+  .domain-card.cost .domain-badge    { background: var(--sky-pale); color: var(--sky); }
+  .domain-card.radv .domain-badge    { background: var(--rose-pale); color: var(--rose); }
+  .domain-card.wide .domain-badge    { background: var(--amber-pale); color: var(--amber); }
+  .domain-card h4 { font-size: 15px; margin-bottom: 8px; }
+  .domain-card p  { font-size: 13px; margin: 0 0 10px; color: var(--steel); }
+  .domain-pnl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    background: var(--snow); border-radius: 5px; padding: 6px 10px;
+    margin-bottom: 10px;
+  }
+  .domain-card.risk .domain-pnl    { color: var(--teal-deep); }
+  .domain-card.quality .domain-pnl { color: var(--violet); }
+  .domain-card.cost .domain-pnl    { color: var(--sky); }
+  .domain-card.radv .domain-pnl    { color: var(--rose); }
+  .domain-card.wide .domain-pnl    { color: var(--amber); }
+  .domain-bullets { list-style: none; margin: 0; padding: 0; }
+  .domain-bullets li {
+    font-size: 12.5px; color: var(--steel);
+    padding: 3px 0 3px 14px; position: relative;
+  }
+  .domain-bullets li::before {
+    content: '·'; position: absolute; left: 0; color: var(--mist); font-weight: 700;
+  }
+
+  /* ── LEVER GRID ── */
+  .lever-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin: 20px 0;
+  }
+  .lever-card {
+    background: var(--white); border: 1px solid var(--frost);
+    border-radius: var(--radius); padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .lever-card h4 { font-size: 13px; margin-bottom: 6px; }
+  .lever-card p  { font-size: 12px; color: var(--mist); margin: 0; line-height: 1.5; }
+  .lever-impacts {
+    display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .impact-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .impact-risk    { background: var(--teal-pale);   color: var(--teal-deep); }
+  .impact-quality { background: var(--violet-pale); color: var(--violet); }
+  .impact-cost    { background: var(--sky-pale);    color: var(--sky); }
+  .impact-radv    { background: var(--rose-pale);   color: var(--rose); }
+
+  /* ── ARCH DIAGRAM ── */
+  .arch-block {
+    background: var(--ink); border-radius: 12px;
+    padding: 32px 36px; margin: 24px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px; color: var(--cloud);
+    overflow-x: auto;
+  }
+  .arch-block pre {
+    margin: 0; padding: 0; background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px; line-height: 1.65; color: var(--cloud);
+    white-space: pre; overflow-x: auto;
+  }
+  .arch-block .layer-label {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--mist); margin-bottom: 10px;
+  }
+  .arch-block .divider {
+    border-top: 1px solid rgba(255,255,255,0.07); margin: 16px 0;
+  }
+  .arch-block .teal   { color: var(--teal-light); }
+  .arch-block .amber  { color: #fbbf24; }
+  .arch-block .violet { color: #a78bfa; }
+  .arch-block .sky    { color: var(--sky-light); }
+  .arch-block .rose   { color: #fb7185; }
+  .arch-block .muted  { color: var(--steel); }
+  .arch-block .green  { color: #86efac; }
+
+  /* ── SCHEMA ── */
+  .schema-block {
+    background: var(--ink); border-radius: 10px;
+    padding: 24px 28px; margin: 16px 0;
+    overflow-x: auto;
+  }
+  .schema-block .schema-title {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--mist); margin-bottom: 12px;
+  }
+  .schema-block pre {
+    margin: 0; padding: 0; background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.7; color: var(--cloud);
+    white-space: pre; overflow-x: auto;
+  }
+  .kw { color: #7dd3fc; }
+  .ty { color: #a78bfa; }
+  .cm { color: #4d5e6e; font-style: italic; }
+  .st { color: #86efac; }
+  .nm { color: #fbbf24; }
+  .op { color: #94a3b8; }
+
+  /* ── SKILL GRID ── */
+  .skill-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;
+  }
+  .skill-card {
+    background: var(--white); border: 1px solid var(--frost);
+    border-radius: var(--radius); padding: 16px 20px;
+    box-shadow: var(--shadow-sm); display: flex; gap: 12px;
+  }
+  .skill-icon {
+    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    background: var(--teal-pale); border: 1px solid rgba(13,148,136,0.2);
+  }
+  .skill-card.violet-skill .skill-icon { background: var(--violet-pale); border-color: rgba(109,40,217,0.2); }
+  .skill-card.sky-skill .skill-icon    { background: var(--sky-pale);    border-color: rgba(3,105,161,0.2); }
+  .skill-card.amber-skill .skill-icon  { background: var(--amber-pale);  border-color: rgba(180,83,9,0.2); }
+  .skill-card.rose-skill .skill-icon   { background: var(--rose-pale);   border-color: rgba(190,18,60,0.2); }
+  .skill-card h4 { font-size: 13.5px; margin-bottom: 4px; }
+  .skill-card p  { font-size: 12px; color: var(--mist); margin: 0; line-height: 1.55; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .skill-tag {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--snow); border: 1px solid var(--frost);
+    color: var(--mist); font-size: 10px; padding: 1px 7px; border-radius: 4px;
+  }
+
+  /* ── DECISION TABLE ── */
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  th {
+    background: var(--ink); color: var(--cloud);
+    padding: 10px 14px; text-align: left;
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;
+  }
+  th:first-child { border-radius: 6px 0 0 0; }
+  th:last-child  { border-radius: 0 6px 0 0; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--frost); color: var(--steel); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--snow); }
+
+  /* ── DA VINCI ── */
+  .davinci-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;
+  }
+  .davinci-card {
+    background: var(--white); border: 1px solid var(--frost);
+    border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow-sm);
+  }
+  .davinci-ig {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    color: var(--teal-deep); background: var(--teal-pale);
+    padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;
+  }
+  .davinci-card h4 { font-size: 13px; margin-bottom: 6px; }
+  .davinci-card p  { font-size: 12px; color: var(--mist); margin: 0; line-height: 1.55; }
+
+  /* ── UTIL ── */
+  code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    background: var(--frost); color: var(--slate);
+    padding: 1px 6px; border-radius: 3px;
+  }
+
+  @media (max-width: 680px) {
+    .hero h1 { font-size: 30px; }
+    .section { padding: 36px 24px; }
+    .domain-grid, .lever-grid, .skill-grid, .davinci-grid { grid-template-columns: 1fr; }
+    .domain-card.wide { grid-column: auto; }
+    .hero-inner { padding: 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Vantage — Healthcare Value Intelligence</div>
+    <h1>Architecture<br><em>Reference</em></h1>
+    <p class="hero-sub">Domains, levers, agent design, data model, and key architectural decisions — updated through March 2026.</p>
+    <div class="hero-meta">
+      <div class="hero-badge">version <span>0.2</span></div>
+      <div class="hero-badge">updated <span>March 2026</span></div>
+      <div class="hero-badge">status <span>Phase 0 complete</span></div>
+      <div class="hero-badge">repo <span>mark64oswald/vantage</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="doc-nav">
+  <div class="doc-nav-inner">
+    <a href="#concept">Concept</a>
+    <a href="#domains">Domains</a>
+    <a href="#levers">Levers</a>
+    <a href="#agents">Agents & Skills</a>
+    <a href="#datamodel">Data Model</a>
+    <a href="#davinci">Da Vinci</a>
+    <a href="#decisions">Key Decisions</a>
+  </div>
+</nav>
+
+<!-- ═══ 1. CONCEPT ═══ -->
+<section class="section" id="concept">
+  <div class="section-label"><span class="num">1</span> Core Concept</div>
+  <h2>What Vantage <em>actually is</em></h2>
+
+  <p>Vantage is a <strong>strategic simulation engine</strong> for Medicare Advantage plans, ACOs, and risk-bearing provider organizations. It models the projected financial impact of interventions — clinical programs, operational changes, policy decisions — across three outcome domains simultaneously, before any dollars are committed.</p>
+
+  <p>The core value proposition is the <strong>Triple-Play</strong>: a single intervention (say, a pharmacist-led hypertension program) produces effects in all three financial domains at once. Risk adjustment revenue goes up as new HCCs are documented. Stars ratings improve as BP control measures close. Medical costs fall as ER visits and inpatient admissions decline. Today's siloed vendor ecosystem cannot show you all three together. Vantage can.</p>
+
+  <div class="callout teal">
+    <div class="callout-label">The One-Sentence Description</div>
+    Vantage is the only platform that lets healthcare decision-makers model how a single intervention moves all three P&amp;L levers — risk revenue, quality bonuses, and medical margin — in a single integrated simulation, in minutes instead of weeks.
+  </div>
+
+  <h3>Positioning</h3>
+  <p><strong>Healthcare Value Intelligence.</strong> "One Surface. One Conversation." Vantage sits at the predictive and prescriptive end of the analytics maturity spectrum — where competition is thinnest and the value premium is highest. Incumbent vendors (Cotiviti, Inovalon, Optum) own the descriptive and diagnostic tiers. Vantage plays where they don't.</p>
+
+  <h3>Primary Market</h3>
+  <p>Medicare Advantage is the target market because it is the purest expression of value-based care: capitation with full risk, where the three Vantage domains map one-to-one to distinct P&amp;L line items. The initial segments are <strong>mid-size MA plans</strong> (30K–300K members) and <strong>provider-sponsored health plans</strong> — organizations that face the same strategic complexity as large plans but lack sophisticated in-house analytics. <strong>Healthcare consulting firms</strong> are the initial sales channel: they already serve these plans and buy tools quickly.</p>
+</section>
+
+<!-- ═══ 2. DOMAINS ═══ -->
+<section class="section" id="domains">
+  <div class="section-label"><span class="num">2</span> Outcome Domains</div>
+  <h2>Four domains. Three revenue lines, <em>one liability.</em></h2>
+
+  <p>Outcome domains are what Vantage <em>measures</em> — the financial consequences of strategic decisions. The original three domains have been joined by a fourth: RADV audit risk, which is the liability-side counterpart to risk adjustment revenue. A plan that aggressively improves its RAF score without corresponding documentation quality creates audit exposure. Vantage models both sides of that balance sheet.</p>
+
+  <div class="domain-grid">
+    <div class="domain-card risk">
+      <div class="domain-badge">Domain 1</div>
+      <div class="domain-pnl">→ Base Capitation Revenue</div>
+      <h4>Risk Adjustment</h4>
+      <p>CMS-HCC models V24 and V28. Every undocumented condition is revenue unrealized. Vantage models prospective and retrospective coding programs, suspect condition identification, and the full V24→V28 transition exposure across a plan's population.</p>
+      <ul class="domain-bullets">
+        <li>ICD-10 → CC → HCC mapping under V24 and V28</li>
+        <li>RAF scoring by segment (CNA/CND/CFA/CFD/CPA/CPD/INS/NE)</li>
+        <li>Dual-scoring delta analysis for V28 exposure</li>
+        <li>Coding gap identification and suspect condition engine</li>
+        <li>Program ROI: IHA, chart review, NLP, provider education</li>
+      </ul>
+    </div>
+
+    <div class="domain-card quality">
+      <div class="domain-badge">Domain 2</div>
+      <div class="domain-pnl">→ Quality Bonus Revenue</div>
+      <h4>Stars / Quality</h4>
+      <p>40+ HEDIS and CAHPS measures. Stars uses relative scoring via CMS clustering algorithms — cut-points shift year-to-year based on national performance distributions. This makes Stars a competitive intelligence problem, not just a measurement one. Vantage models cut-point movement and gap closure leverage simultaneously.</p>
+      <ul class="domain-bullets">
+        <li>Five-population tracking: IPP / denominator / numerator / exclusion / exception</li>
+        <li>Gap status, closure probability, and reachability per member per measure</li>
+        <li>Stars composite projection with CMS clustering simulation</li>
+        <li>Cut-point movement modeling based on national performance trends</li>
+        <li>Measure prioritization by Stars weight × gap closure leverage</li>
+        <li>APP Plus and MSSP quality measure support alongside Stars</li>
+      </ul>
+    </div>
+
+    <div class="domain-card cost">
+      <div class="domain-badge">Domain 3</div>
+      <div class="domain-pnl">→ Medical Margin</div>
+      <h4>Medical Cost / MLR</h4>
+      <p>Under capitation, every dollar of unnecessary utilization directly erodes margin. Vantage models care management, site-of-service steerage, formulary optimization, and utilization management programs against a population's actual cost profile — and calculates shared savings or downside risk under VBC contracts.</p>
+      <ul class="domain-bullets">
+        <li>TCOC calculation vs. CMS benchmarks by population segment</li>
+        <li>MLR decomposition: medical, admin, quality improvement</li>
+        <li>Utilization pattern simulation: ER, inpatient, post-acute, Rx</li>
+        <li>VBC contract modeling: MSSP, REACH, MA VBC, CPC+</li>
+        <li>Shared savings probability and downside risk exposure</li>
+        <li>Site-of-service steerage: ASC, preferred SNF, home health</li>
+      </ul>
+    </div>
+
+    <div class="domain-card radv">
+      <div class="domain-badge">Domain 4 · New</div>
+      <div class="domain-pnl">→ Audit Liability / Risk Exposure</div>
+      <h4>RADV Audit Risk</h4>
+      <p>RADV (Risk Adjustment Data Validation) is the CMS audit mechanism that validates submitted HCCs against medical record documentation. A plan that improves RAF revenue through coding programs without corresponding documentation quality creates material audit exposure. Most vendors model the revenue side; Vantage models both sides of the risk adjustment balance sheet.</p>
+      <ul class="domain-bullets">
+        <li>Documentation completeness scoring per HCC per member</li>
+        <li>Documentation specificity tracking (high / medium / low)</li>
+        <li>Encounter-to-documentation lag as audit risk signal</li>
+        <li>Audit risk score aggregation at plan and cohort level</li>
+        <li>RAF revenue vs. audit exposure net position modeling</li>
+        <li>Coding program ROI adjusted for audit risk</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="domain-grid">
+    <div class="domain-card wide">
+      <div class="domain-badge">Cross-Domain Lever</div>
+      <div class="domain-pnl">→ Affects All Three P&amp;L Lines</div>
+      <h4>Prior Authorization — The Gating Mechanism</h4>
+      <p>PA is not a peer outcome domain — it is an <strong>intervention lever</strong> whose effects cascade through all three domains simultaneously. Approve an imaging study and you may capture a new HCC (Risk). Approve preventive services and you close quality measure gaps (Stars). Relax PA thresholds for ACO-attributed members and you increase utilization but partially recover through VBC shared savings (Cost). PA policy configuration is the most cross-domain lever in the framework, which is why it warrants its own typed parameter model.</p>
+      <ul class="domain-bullets">
+        <li>Service-level PA configuration: CPT/HCPCS codes requiring authorization</li>
+        <li>Approval rate targets: in-network, out-of-network, ACO-attributed</li>
+        <li>VBC modulation: dynamic threshold adjustment based on contract performance</li>
+        <li>Denial policy: criteria type (MCG/InterQual/custom), peer-to-peer availability</li>
+        <li>Turnaround time: standard vs. expedited, auto-approval rules</li>
+        <li>Appeal configuration and downstream RADV documentation alignment</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3. LEVERS ═══ -->
+<section class="section" id="levers">
+  <div class="section-label"><span class="num">3</span> Intervention Levers</div>
+  <h2>Levers are what you <em>dial.</em></h2>
+
+  <p>Intervention levers are operational inputs — things a plan or provider organization can decide to do or change. The simulation engine connects each lever to outcome domains through evidence-based effect models. Lever configurations are stored in the <code>scenario.lever_configs</code> table with a typed JSON parameters field that varies by <code>lever_type</code>.</p>
+
+  <div class="lever-grid">
+    <div class="lever-card">
+      <h4>Coding Programs</h4>
+      <p>In-home assessments, chart reviews, NLP-assisted coding, provider education. Directly captures undocumented HCCs. Secondary effect on documentation quality (RADV).</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑↑</span>
+        <span class="impact-tag impact-radv">RADV ±</span>
+        <span class="impact-tag impact-cost">Cost →</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Chronic Disease Management</h4>
+      <p>Diabetes CDM, CHF management, hypertension programs. Improves coding specificity, closes quality measure gaps, reduces high-cost utilization for target conditions.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑</span>
+        <span class="impact-tag impact-quality">Stars ↑</span>
+        <span class="impact-tag impact-cost">Cost ↓↓</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Prior Authorization</h4>
+      <p>PA policy configuration across service lines and member segments. The most cross-domain lever: affects HCC documentation, quality measure completion, and utilization simultaneously.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑</span>
+        <span class="impact-tag impact-quality">Stars ↑</span>
+        <span class="impact-tag impact-cost">Cost ↕</span>
+        <span class="impact-tag impact-radv">RADV ±</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Formulary / Pharmacy</h4>
+      <p>Generic conversion, step therapy, biosimilar adoption, adherence programs. Medication adherence signals chronic condition coding; adherence measures (RASA, DNOSP) improve Stars directly.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑</span>
+        <span class="impact-tag impact-quality">Stars ↑↑</span>
+        <span class="impact-tag impact-cost">Cost ↓</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Network &amp; Site-of-Service</h4>
+      <p>ASC steerage, preferred SNF networks, home health channeling, provider attribution. 30–50% cost reduction per eligible procedure with ASC steerage. Attribution quality improves coding completeness.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑</span>
+        <span class="impact-tag impact-quality">Stars ↑</span>
+        <span class="impact-tag impact-cost">Cost ↓↓</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Provider Contract Design</h4>
+      <p>Quality bonuses, coding accuracy incentives, VBC participation tiers. Contract design affects provider behavior on documentation, referral patterns, and preventive care delivery.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑</span>
+        <span class="impact-tag impact-quality">Stars ↑</span>
+        <span class="impact-tag impact-cost">Cost ↓</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>Benefit Design</h4>
+      <p>Supplemental benefits, cost-sharing structure, SSBCI configuration. Benefit design affects member utilization behavior, care-seeking patterns, and quality measure completion rates.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-quality">Stars ↑</span>
+        <span class="impact-tag impact-cost">Cost ↕</span>
+      </div>
+    </div>
+    <div class="lever-card">
+      <h4>V28 Transition Response</h4>
+      <p>Documentation specificity programs targeting V28 reclassified HCCs. Dual-scoring strategy to identify V28 coding opportunities that partially offset V24-to-V28 revenue reduction.</p>
+      <div class="lever-impacts">
+        <span class="impact-tag impact-risk">Risk ↑↑</span>
+        <span class="impact-tag impact-radv">RADV ↑</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Lever → Domain Effect Matrix</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Lever</th>
+        <th>Risk Adj.</th>
+        <th>Stars/Quality</th>
+        <th>Medical Cost</th>
+        <th>RADV</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Coding Programs</strong></td>
+        <td>Primary effect (↑↑ HCC capture)</td>
+        <td>Indirect (documentation supports numerators)</td>
+        <td>Indirect (better risk stratification)</td>
+        <td>Direct ± (more coding = more audit surface)</td>
+      </tr>
+      <tr>
+        <td><strong>Chronic Disease Mgmt</strong></td>
+        <td>↑ Specificity (E11.65 vs E11.9)</td>
+        <td>Primary effect (HbA1c, BP, adherence)</td>
+        <td>Primary effect (8–15% TCOC reduction in cohort)</td>
+        <td>↑ Documentation quality for coded conditions</td>
+      </tr>
+      <tr>
+        <td><strong>Prior Authorization</strong></td>
+        <td>↑ New HCC documentation via approved workups</td>
+        <td>↑ Preventive service completion</td>
+        <td>Primary effect (utilization gating)</td>
+        <td>Diagnostic context from PA events supports HCC documentation</td>
+      </tr>
+      <tr>
+        <td><strong>Formulary / Pharmacy</strong></td>
+        <td>Adherence signals chronic condition coding</td>
+        <td>Primary effect (RASA, DNOSP, adherence measures)</td>
+        <td>Pharmacy PMPM −5–15%</td>
+        <td>Minimal</td>
+      </tr>
+      <tr>
+        <td><strong>Network / Site-of-Service</strong></td>
+        <td>Attribution quality improves coding completeness</td>
+        <td>↑ Preventive care rates via PCP attribution</td>
+        <td>Primary effect (30–50% ASC cost reduction)</td>
+        <td>Higher-quality attributed providers = better documentation</td>
+      </tr>
+      <tr>
+        <td><strong>Provider Contracts</strong></td>
+        <td>Coding incentives improve documentation</td>
+        <td>Quality bonuses improve measure rates</td>
+        <td>VBC participation aligns incentives</td>
+        <td>Coding accuracy incentives reduce audit risk</td>
+      </tr>
+      <tr>
+        <td><strong>Benefit Design</strong></td>
+        <td>Minimal</td>
+        <td>↑ Care-seeking → measure completion</td>
+        <td>Cost-sharing affects utilization behavior</td>
+        <td>Minimal</td>
+      </tr>
+      <tr>
+        <td><strong>V28 Response</strong></td>
+        <td>Primary effect (mitigates ~3.12% avg reduction)</td>
+        <td>No direct Stars impact</td>
+        <td>Indirect (better risk stratification)</td>
+        <td>↑ Documentation specificity reduces audit risk</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ 4. AGENTS & SKILLS ═══ -->
+<section class="section" id="agents">
+  <div class="section-label"><span class="num">4</span> Agents &amp; Skills</div>
+  <h2>Claude Code as <em>runtime, not just tooling.</em></h2>
+
+  <p>Vantage's architecture is Claude-native: Claude Code is both the development environment and the production runtime. The SKILL.md files and CLAUDE.md configuration used to build the platform are the same artifacts users interact through. This eliminates infrastructure complexity while enabling the full range of conversational AI capabilities.</p>
+
+  <h3>CLAUDE.md Three-Level Hierarchy</h3>
+
+  <div class="arch-block">
+    <div class="layer-label">── CONFIGURATION HIERARCHY ───────────────────────────────────────────</div>
+<pre>
+<span class="teal">~/.claude/CLAUDE.md</span>               <span class="muted">← USER LEVEL</span>
+  PHI safety rules (never retrieve, display, or log real member data)
+  SQL/Python preferences
+  DuckDB close-before-write pattern
+  Output format defaults
+
+<span class="teal">./CLAUDE.md</span>                       <span class="muted">← PROJECT LEVEL (Vantage orchestrator)</span>
+  Intent routing logic → skill selection
+  Cross-domain synthesis rules
+  Population context management across conversation turns
+  Triple-Play output requirements (always surface all 3 domains)
+  Scenario state management
+  Confidence interval and uncertainty communication standards
+
+<span class="teal">./skills/*/SKILL.md</span>               <span class="muted">← SKILL LEVEL (one per domain/capability)</span>
+  Detailed operational instructions per model
+  Domain-specific calculation logic
+  Evidence weights and calibration notes
+  Output format for that skill's results
+</pre>
+  </div>
+
+  <h3>Seven Skills</h3>
+  <div class="skill-grid">
+    <div class="skill-card">
+      <div class="skill-icon">👥</div>
+      <div>
+        <h4>population-engine</h4>
+        <p>Generates or loads synthetic populations calibrated to target demographics. Maintains session-scoped population state. Provides the member set for all domain models.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">population-gen</span>
+          <span class="skill-tag">hcc-assign</span>
+          <span class="skill-tag">baseline-calc</span>
+          <span class="skill-tag">HealthSim fork</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">◎</div>
+      <div>
+        <h4>risk-model</h4>
+        <p>Implements CMS-HCC V24/V28 scoring. Identifies coding gaps, models prospective and retrospective coding programs, handles RADV audit risk assessment as the fourth outcome domain.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">hcc-mapper</span>
+          <span class="skill-tag">raf-scorer</span>
+          <span class="skill-tag">suspect-engine</span>
+          <span class="skill-tag">radv-risk</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card violet-skill">
+      <div class="skill-icon">★</div>
+      <div>
+        <h4>quality-model</h4>
+        <p>Evaluates eCQM/HEDIS measures using five-population tracking. Projects Stars using CMS clustering methodology. Models cut-point movement. Supports APP Plus and MSSP quality.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">ecqm-engine</span>
+          <span class="skill-tag">stars-model</span>
+          <span class="skill-tag">gap-tracker</span>
+          <span class="skill-tag">cutpoint-sim</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card sky-skill">
+      <div class="skill-icon">💲</div>
+      <div>
+        <h4>vbc-model</h4>
+        <p>Calculates TCOC against benchmarks, models utilization changes, projects MLR. Handles VBC contract performance modeling, shared savings calculations, and downside risk exposure.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">tcoc-calc</span>
+          <span class="skill-tag">mlr-model</span>
+          <span class="skill-tag">vbc-contracts</span>
+          <span class="skill-tag">utilization-sim</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card amber-skill">
+      <div class="skill-icon">🔬</div>
+      <div>
+        <h4>scenario-runner</h4>
+        <p>Activates intervention levers, routes impacts through all domain models simultaneously, produces Triple-Play summaries and ROI calculations with confidence intervals.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">lever-engine</span>
+          <span class="skill-tag">roi-calc</span>
+          <span class="skill-tag">confidence</span>
+          <span class="skill-tag">pa-simulator</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card amber-skill">
+      <div class="skill-icon">📅</div>
+      <div>
+        <h4>temporal-projector</h4>
+        <p>Multi-year scenario projection accounting for member churn, condition progression, compounding intervention effects, and year-over-year Stars cut-point drift.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">multi-year</span>
+          <span class="skill-tag">churn-model</span>
+          <span class="skill-tag">progression</span>
+          <span class="skill-tag">compounding</span>
+        </div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">⚖</div>
+      <div>
+        <h4>comparator</h4>
+        <p>Side-by-side scenario comparison, normalized ROI ranking across scenarios, sensitivity analysis, and executive summary generation for Board/CFO-level communication.</p>
+        <div class="skill-tags">
+          <span class="skill-tag">scenario-compare</span>
+          <span class="skill-tag">roi-rank</span>
+          <span class="skill-tag">sensitivity</span>
+          <span class="skill-tag">exec-summary</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout violet">
+    <div class="callout-label">Critical Design Principle</div>
+    The orchestrator (project-level CLAUDE.md) must enforce cross-domain synthesis even when the user asks a single-domain question. If someone asks "how does this PA policy change affect our Stars rating?", Vantage should surface the Risk and Cost implications too — because the user is making a decision that affects all three P&amp;L lines even if they only asked about one.
+  </div>
+</section>
+
+<!-- ═══ 5. DATA MODEL ═══ -->
+<section class="section" id="datamodel">
+  <div class="section-label"><span class="num">5</span> Data Model</div>
+  <h2>Four schemas, cleanly separated, <em>designed for simulation.</em></h2>
+
+  <p>DuckDB is the data layer for development and early deployment, behind a <code>DataStore</code> abstraction designed for future migration to Databricks or Snowflake without changing skill logic. All member identifiers in simulation are synthetic — the <code>population.members</code> table carries a PHI prohibition comment as a code-level reminder.</p>
+
+  <div class="schema-block">
+    <div class="schema-title">── SCHEMA: reference — stable CMS/NCQA specifications ───────────────</div>
+<pre><span class="cm">-- CMS-HCC crosswalk: ICD-10 → CC → HCC for both model years</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">reference.hcc_crosswalk</span> (
+  icd10_code      <span class="ty">VARCHAR</span>,
+  cc_number       <span class="ty">INTEGER</span>,
+  hcc_number      <span class="ty">INTEGER</span>,    <span class="cm">-- NULL if CC but not a payment-relevant HCC</span>
+  model_year      <span class="ty">SMALLINT</span>,   <span class="cm">-- 24 | 28</span>
+  effective_date  <span class="ty">DATE</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="nm">reference.raf_coefficients</span> (
+  hcc_number      <span class="ty">INTEGER</span>,
+  model_year      <span class="ty">SMALLINT</span>,
+  segment         <span class="ty">VARCHAR</span>,    <span class="cm">-- CNA | CND | CFA | CFD | CPA | CPD | INS | NE</span>
+  coefficient     <span class="ty">DECIMAL(8,4)</span>
+);
+
+<span class="cm">-- eCQM measure specs — five-population model aligned to DEQM IG</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">reference.measure_specs</span> (
+  measure_id      <span class="ty">VARCHAR</span>,    <span class="cm">-- e.g. 'CMS165v12'</span>
+  measure_name    <span class="ty">VARCHAR</span>,
+  steward         <span class="ty">VARCHAR</span>,    <span class="cm">-- NCQA | CMS | AMA</span>
+  canonical_url   <span class="ty">VARCHAR</span>,    <span class="cm">-- FHIR canonical for CQL library</span>
+  stars_domain    <span class="ty">VARCHAR</span>,    <span class="cm">-- Clinical | Experience | Access | Part D</span>
+  stars_weight    <span class="ty">DECIMAL(4,2)</span>,
+  effective_year  <span class="ty">SMALLINT</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="nm">reference.pa_criteria_templates</span> (
+  service_code    <span class="ty">VARCHAR</span>,    <span class="cm">-- CPT / HCPCS</span>
+  service_desc    <span class="ty">VARCHAR</span>,
+  pa_required     <span class="ty">BOOLEAN</span>,
+  criteria_type   <span class="ty">VARCHAR</span>,    <span class="cm">-- MCG | InterQual | custom</span>
+  vbc_modifiable  <span class="ty">BOOLEAN</span>     <span class="cm">-- can VBC status modulate this requirement?</span>
+);
+
+<span class="cm">-- Intervention effect library: lever → domain → evidence-based effect weights</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">reference.effect_weights</span> (
+  lever_type         <span class="ty">VARCHAR</span>,
+  domain             <span class="ty">VARCHAR</span>,      <span class="cm">-- risk | quality | cost | radv</span>
+  effect_metric      <span class="ty">VARCHAR</span>,      <span class="cm">-- e.g. 'hcc_capture_rate', 'bp_control_delta'</span>
+  base_effect        <span class="ty">DECIMAL(8,4)</span>,
+  effect_low         <span class="ty">DECIMAL(8,4)</span>, <span class="cm">-- 10th percentile</span>
+  effect_high        <span class="ty">DECIMAL(8,4)</span>, <span class="cm">-- 90th percentile</span>
+  unit_description   <span class="ty">VARCHAR</span>,
+  source_citation    <span class="ty">VARCHAR</span>,
+  confidence         <span class="ty">VARCHAR</span>,      <span class="cm">-- high | medium | low</span>
+  sdoh_modifier_json <span class="ty">VARCHAR</span>       <span class="cm">-- JSON or NULL; geographic/demographic modifiers</span>
+                                   <span class="cm">-- Populated for: cdm (SVI tier → engagement rate),</span>
+                                   <span class="cm">--   coding_program (dual_pct tier → HCC capture rate),</span>
+                                   <span class="cm">--   steerage (rural/urban → ASC cost reduction)</span>
+                                   <span class="cm">-- NULL for: pa_policy, formulary, provider_contract,</span>
+                                   <span class="cm">--   benefit_design, v28_response</span>
+);</pre>
+  </div>
+
+  <div class="schema-block">
+    <div class="schema-title">── SCHEMA: population — the simulation subjects (always synthetic) ────</div>
+<pre><span class="kw">CREATE TABLE</span> <span class="nm">population.members</span> (
+  member_id         <span class="ty">VARCHAR PRIMARY KEY</span>,  <span class="cm">-- synthetic, never real PHI</span>
+  birth_year        <span class="ty">SMALLINT</span>,
+  sex               <span class="ty">CHAR(1)</span>,
+  dual_status       <span class="ty">BOOLEAN</span>,
+  orec              <span class="ty">SMALLINT</span>,   <span class="cm">-- original reason for entitlement code</span>
+  county_fips       <span class="ty">VARCHAR</span>,
+  attribution_pcp   <span class="ty">VARCHAR</span>,    <span class="cm">-- NPI of attributed PCP</span>
+  aco_attributed    <span class="ty">BOOLEAN</span>,
+  enrollment_start  <span class="ty">DATE</span>,
+  enrollment_end    <span class="ty">DATE</span>         <span class="cm">-- NULL = currently enrolled</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="nm">population.member_hccs</span> (
+  member_id    <span class="ty">VARCHAR</span>,
+  hcc_number   <span class="ty">INTEGER</span>,
+  model_year   <span class="ty">SMALLINT</span>,
+  source       <span class="ty">VARCHAR</span>,  <span class="cm">-- claims | chart_review | iha | suspect | nlp</span>
+  confidence   <span class="ty">DECIMAL(4,3)</span>  <span class="cm">-- 1.0 = confirmed; &lt;1.0 = suspect</span>
+);
+
+<span class="cm">-- PA events: connects the PA lever to RAF documentation and RADV exposure</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">population.pa_events</span> (
+  pa_event_id      <span class="ty">VARCHAR PRIMARY KEY</span>,
+  member_id        <span class="ty">VARCHAR</span>,
+  service_code     <span class="ty">VARCHAR</span>,    <span class="cm">-- CPT/HCPCS</span>
+  diagnosis_codes  <span class="ty">VARCHAR[]</span>,  <span class="cm">-- ICD-10 codes supporting the request</span>
+  request_date     <span class="ty">DATE</span>,
+  disposition      <span class="ty">VARCHAR</span>,    <span class="cm">-- approved | denied | partial | withdrawn</span>
+  auth_period      <span class="ty">DATERANGE</span>,
+  denial_reason    <span class="ty">VARCHAR</span>,
+  da_vinci_ref     <span class="ty">VARCHAR</span>     <span class="cm">-- FHIR Claim.id from PAS IG (future)</span>
+);</pre>
+  </div>
+
+  <div class="schema-block">
+    <div class="schema-title">── SCHEMA: scenario — simulation configurations ──────────────────────</div>
+<pre><span class="kw">CREATE TABLE</span> <span class="nm">scenario.scenarios</span> (
+  scenario_id    <span class="ty">VARCHAR PRIMARY KEY</span>,
+  name           <span class="ty">VARCHAR</span>,
+  description    <span class="ty">VARCHAR</span>,
+  population_id  <span class="ty">VARCHAR</span>,   <span class="cm">-- which population snapshot</span>
+  created_at     <span class="ty">TIMESTAMP</span>,
+  status         <span class="ty">VARCHAR</span>    <span class="cm">-- draft | running | complete</span>
+);
+
+<span class="cm">-- Lever configurations: typed JSON parameters per lever_type</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">scenario.lever_configs</span> (
+  lever_id       <span class="ty">VARCHAR PRIMARY KEY</span>,
+  scenario_id    <span class="ty">VARCHAR</span>,
+  lever_type     <span class="ty">VARCHAR</span>,   <span class="cm">-- coding_program | cdm | pa_policy | formulary |</span>
+                             <span class="cm">--   steerage | provider_contract | benefit_design | v28_response</span>
+  parameters     <span class="ty">JSON</span>,      <span class="cm">-- typed by lever_type (see lever_type specs)</span>
+  target_cohort  <span class="ty">VARCHAR</span>   <span class="cm">-- SQL predicate or cohort_id</span>
+);
+
+<span class="cm">-- PA policy parameters (lever_type = 'pa_policy'):</span>
+<span class="cm">-- { "services": ["CPT99213"], "approval_rate": 0.92,</span>
+<span class="cm">--   "aco_rate": 0.95, "vbc_modulation": true,</span>
+<span class="cm">--   "vbc_threshold_pct": 0.95, "turnaround_hours": 72,</span>
+<span class="cm">--   "peer_to_peer": true, "auto_approve_criteria": "..." }</span>
+
+<span class="kw">CREATE TABLE</span> <span class="nm">scenario.contract_configs</span> (
+  contract_id      <span class="ty">VARCHAR PRIMARY KEY</span>,
+  scenario_id      <span class="ty">VARCHAR</span>,
+  contract_type    <span class="ty">VARCHAR</span>,   <span class="cm">-- mssp | reach | ma_vbc | cpci</span>
+  benchmark_pct    <span class="ty">DECIMAL(5,3)</span>,
+  savings_share    <span class="ty">DECIMAL(4,3)</span>,
+  quality_gates    <span class="ty">JSON</span>       <span class="cm">-- computable quality measure conditions</span>
+);</pre>
+  </div>
+
+  <div class="schema-block">
+    <div class="schema-title">── SCHEMA: output — simulation results ───────────────────────────────</div>
+<pre><span class="kw">CREATE TABLE</span> <span class="nm">output.member_raf</span> (
+  scenario_id    <span class="ty">VARCHAR</span>,
+  member_id      <span class="ty">VARCHAR</span>,
+  model_year     <span class="ty">SMALLINT</span>,   <span class="cm">-- 24 | 28</span>
+  raf_baseline   <span class="ty">DECIMAL(8,4)</span>,
+  raf_projected  <span class="ty">DECIMAL(8,4)</span>,
+  delta_revenue  <span class="ty">DECIMAL(10,2)</span>
+);
+
+<span class="cm">-- Five-population quality model: aligned to DEQM / Da Vinci IG</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">output.measure_populations</span> (
+  scenario_id      <span class="ty">VARCHAR</span>,
+  member_id        <span class="ty">VARCHAR</span>,
+  measure_id       <span class="ty">VARCHAR</span>,
+  population_type  <span class="ty">VARCHAR</span>   <span class="cm">-- IPP | denominator | numerator | exclusion | exception</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="nm">output.measure_gaps</span> (
+  scenario_id          <span class="ty">VARCHAR</span>,
+  member_id            <span class="ty">VARCHAR</span>,
+  measure_id           <span class="ty">VARCHAR</span>,
+  gap_status           <span class="ty">BOOLEAN</span>,    <span class="cm">-- true = gap open (not in numerator)</span>
+  closure_probability  <span class="ty">DECIMAL(4,3)</span>,
+  reachability         <span class="ty">VARCHAR</span>,    <span class="cm">-- reachable | excluded | lost_to_followup</span>
+  projected_closed     <span class="ty">BOOLEAN</span>     <span class="cm">-- after lever application</span>
+);
+
+<span class="cm">-- RADV: the liability side of the risk adjustment balance sheet</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">output.member_radv_risk</span> (
+  scenario_id               <span class="ty">VARCHAR</span>,
+  member_id                 <span class="ty">VARCHAR</span>,
+  hcc_id                    <span class="ty">INTEGER</span>,
+  documentation_complete    <span class="ty">BOOLEAN</span>,
+  documentation_specificity <span class="ty">VARCHAR</span>,   <span class="cm">-- high | medium | low</span>
+  encounter_to_doc_lag      <span class="ty">INTEGER</span>,   <span class="cm">-- days between encounter and HCC support</span>
+  audit_risk_score          <span class="ty">DECIMAL(4,3)</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="nm">output.scenario_summary</span> (
+  scenario_id          <span class="ty">VARCHAR PRIMARY KEY</span>,
+  risk_revenue_delta   <span class="ty">DECIMAL(12,2)</span>,
+  quality_bonus_delta  <span class="ty">DECIMAL(12,2)</span>,
+  medical_cost_delta   <span class="ty">DECIMAL(12,2)</span>,
+  radv_exposure_delta  <span class="ty">DECIMAL(12,2)</span>,
+  net_value            <span class="ty">DECIMAL(12,2)</span>,
+  roi_ratio            <span class="ty">DECIMAL(6,2)</span>,
+  confidence_low       <span class="ty">DECIMAL(12,2)</span>,
+  confidence_high      <span class="ty">DECIMAL(12,2)</span>,
+  break_even_month     <span class="ty">SMALLINT</span>
+);</pre>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">DuckDB Lessons from HealthSim</div>
+    Close-before-write: always close read connections before opening write connections. Retry with exponential backoff for lock contention (initial wait 100ms, max 5 retries). Keep DuckDB files small through schema partitioning to avoid Git LFS. Maintain the <code>DataStore</code> abstraction so the entire data layer can be swapped for Databricks or Snowflake without touching skill logic.
+  </div>
+</section>
+
+<!-- ═══ 6. DA VINCI ═══ -->
+<section class="section" id="davinci">
+  <div class="section-label"><span class="num">6</span> Da Vinci Alignment</div>
+  <h2>Structural alignment, <em>not implementation dependency.</em></h2>
+
+  <p>The HL7 Da Vinci project has produced a suite of implementation guides that define the interoperability infrastructure for the domains Vantage models. Vantage is a <strong>simulation system, not an operational system</strong> — so Da Vinci IGs are treated as sources of domain modeling insight and future data ingestion pathways, not implementation requirements for Phase 1.</p>
+
+  <p>The strategic value: designing internal data structures to mirror the semantic structure of these IGs means that future ingestion of real FHIR data becomes a mapping exercise rather than a schema redesign. It also creates credibility with technically sophisticated buyers who understand the Da Vinci ecosystem.</p>
+
+  <div class="davinci-grid">
+    <div class="davinci-card">
+      <div class="davinci-ig">DEQM</div>
+      <h4>Data Exchange for Quality Measures</h4>
+      <p>Defines the five-population model (IPP, denominator, numerator, exclusion, exception) that Vantage's quality model uses internally. Aligns <code>output.measure_populations</code> to the canonical eCQM data model. Future: ingest DEQM measure reports from health systems directly.</p>
+    </div>
+    <div class="davinci-card">
+      <div class="davinci-ig">CRD</div>
+      <h4>Coverage Requirements Discovery</h4>
+      <p>Surfaces payer coverage requirements at the point of care within clinical workflows. Relevant to PA lever simulation: the set of services requiring PA and the criteria used to evaluate requests. Informs <code>reference.pa_criteria_templates</code> structure.</p>
+    </div>
+    <div class="davinci-card">
+      <div class="davinci-ig">DTR</div>
+      <h4>Documentation Templates &amp; Coverage Rules</h4>
+      <p>Automates documentation gathering for PA requests using FHIR Questionnaire resources. The documentation context captured in DTR responses is the same diagnostic context that creates HCC documentation opportunities — the PA → Risk Adjustment connection.</p>
+    </div>
+    <div class="davinci-card">
+      <div class="davinci-ig">PAS</div>
+      <h4>Prior Authorization Support</h4>
+      <p>Standardizes the PA submission and response workflow. Defines the FHIR Claim resource structure for PA requests. <code>population.pa_events.da_vinci_ref</code> stores the future Claim.id from this IG, enabling real PA data ingestion without schema changes.</p>
+    </div>
+    <div class="davinci-card">
+      <div class="davinci-ig">CDex</div>
+      <h4>Clinical Data Exchange</h4>
+      <p>Enables payer-initiated data requests from providers — the mechanism for chart review and HCC documentation validation. Relevant to RADV modeling: CDex defines how a payer would request documentation to support a coded HCC in an audit scenario.</p>
+    </div>
+    <div class="davinci-card">
+      <div class="davinci-ig">VBPR</div>
+      <h4>Value-Based Performance Reporting</h4>
+      <p>Defines performance reporting structures for VBC contracts. Aligns to <code>scenario.contract_configs</code> quality gates model. Future: ingest performance reports from VBC contracts to calibrate simulation benchmarks with real contract data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 7. KEY DECISIONS ═══ -->
+<section class="section" id="decisions">
+  <div class="section-label"><span class="num">7</span> Key Architectural Decisions</div>
+  <h2>Decisions made, <em>with rationale.</em></h2>
+
+  <table>
+    <thead>
+      <tr><th>Decision</th><th>Choice Made</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RADV as 4th domain</strong></td>
+        <td>Yes — modeled separately in <code>output.member_radv_risk</code></td>
+        <td>Risk adjustment revenue without corresponding documentation quality creates material audit liability. Most vendors ignore the liability side. Vantage models both, which is a genuine differentiator.</td>
+      </tr>
+      <tr>
+        <td><strong>PA architectural role</strong></td>
+        <td>Cross-domain lever, not a peer outcome domain</td>
+        <td>PA is a gating mechanism whose effects are measured through the three revenue domains. Elevating it to a domain would conflate inputs with outputs. It remains a lever with typed simulation parameters.</td>
+      </tr>
+      <tr>
+        <td><strong>Quality model population</strong></td>
+        <td>Five-population (IPP / denominator / numerator / exclusion / exception)</td>
+        <td>DEQM IG and NCQA HEDIS both use five-population logic. A binary numerator/denominator model cannot correctly handle exclusions or exceptions, which materially affects gap calculations and Stars projection accuracy.</td>
+      </tr>
+      <tr>
+        <td><strong>Effect weight calibration</strong></td>
+        <td>Literature-sourced weights in <code>reference.effect_weights</code> with uncertainty ranges</td>
+        <td>The causal connections between levers and domains require empirical grounding. Weights are stored with source citation and confidence level so simulations surface their own uncertainty honestly.</td>
+      </tr>
+      <tr>
+        <td><strong>SDOH-modulated effect weights</strong></td>
+        <td><code>sdoh_modifier_json</code> column on <code>reference.effect_weights</code>; three levers populated</td>
+        <td>Population demographics and geography shift effective intervention outcomes. CDM engagement is ~22% lower in high-SVI counties. Coding yield is ~28% higher for DSNP-heavy populations. Rural ASC steerage savings are ~75% lower due to absent alternatives. The modifier is a JSON multiplier applied at simulation time using SVI tier, dual-eligible percentage, or rural/urban classification from the population profile. Five levers have NULL modifiers — evidence doesn't support geographic adjustment there. This is a differentiator: most tools use flat benchmarks regardless of who the population is.</td>
+      </tr>
+      <tr>
+        <td><strong>Runtime environment</strong></td>
+        <td>Claude Code (both dev and runtime)</td>
+        <td>Eliminates infrastructure complexity. The SKILL.md files built during development are the same artifacts users interact with. This is architecturally appropriate for a strategic simulation tool used in conversation.</td>
+      </tr>
+      <tr>
+        <td><strong>Data layer</strong></td>
+        <td>DuckDB with DataStore abstraction</td>
+        <td>DuckDB is appropriate for development and early-deployment scale. The abstraction layer ensures migration to Databricks or Snowflake is a configuration change, not a rewrite.</td>
+      </tr>
+      <tr>
+        <td><strong>HealthSim relationship</strong></td>
+        <td>Selective fork — proven patterns forward, no dependency</td>
+        <td>HealthSim's population generation is proven. Fork the DataStore abstraction, synthetic population generation, and DuckDB connection patterns. Leave behind HealthSim-specific domain logic. No ongoing dependency.</td>
+      </tr>
+      <tr>
+        <td><strong>Da Vinci IGs</strong></td>
+        <td>Structural alignment in schema design; not an implementation requirement</td>
+        <td>Aligning data model semantics to Da Vinci IGs makes future real-data ingestion a mapping exercise. Credibility signal with sophisticated buyers. No requirement to implement FHIR infrastructure in Phase 1.</td>
+      </tr>
+      <tr>
+        <td><strong>GTM sequencing</strong></td>
+        <td>Consulting channel first → OSS core in parallel → Direct SaaS later</td>
+        <td>Consultants buy tools quickly and have existing MA plan relationships. OSS builds community credibility in parallel. Direct SaaS to mid-market plans requires reference customers first. V28 urgency is the entry hook.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout amber">
+    <div class="callout-label">Open Architectural Question</div>
+    The calibration of effect weights (the causal relationships between levers and outcome domains) is the primary technical risk. These weights require literature synthesis across clinical, actuarial, and health economics research. The mitigation approach: Claude can directly support this synthesis, producing documented weights with uncertainty ranges and source citations stored in <code>reference.effect_weights</code>. This is tracked as a Phase 1 parallel workstream.
+  </div>
+</section>
+
+</body>
+</html>

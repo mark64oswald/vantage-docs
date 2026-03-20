@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Claude Code Execution Guide · March 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0c1222;--slate:#1a2332;--steel:#3d4f63;--mist:#7b8fa3;
+    --cloud:#b8c5d3;--frost:#e1e8ef;--snow:#f5f7fa;--white:#ffffff;
+    --teal:#0d9488;--teal-deep:#0a5e56;--teal-light:#2dd4bf;--teal-glow:#99f6e4;--teal-pale:#f0fdfa;
+    --amber:#b45309;--amber-light:#f59e0b;--amber-pale:#fffbeb;
+    --violet:#6d28d9;--violet-light:#a78bfa;--violet-pale:#f5f3ff;
+    --sky:#0369a1;--sky-light:#38bdf8;--sky-pale:#f0f9ff;
+    --rose:#be123c;--rose-pale:#fff1f2;
+    --green:#15803d;--green-pale:#f0fdf4;
+    --radius:10px;
+    --shadow-sm:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Outfit',sans-serif;background:var(--snow);color:var(--slate);line-height:1.75;-webkit-font-smoothing:antialiased;}
+
+  .hero{background:var(--ink);padding:56px 0 48px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 80% at 80% 40%,rgba(13,148,136,0.14) 0%,transparent 70%),
+               radial-gradient(ellipse 40% 60% at 15% 80%,rgba(109,40,217,0.08) 0%,transparent 60%);}
+  .hero-inner{max-width:900px;margin:0 auto;padding:0 48px;position:relative;}
+  .hero-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--teal-light);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .hero-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--teal-light);}
+  .hero h1{font-family:'Fraunces',serif;font-size:40px;font-weight:700;color:var(--white);line-height:1.15;margin-bottom:14px;}
+  .hero h1 em{font-style:italic;color:var(--teal-light);}
+  .hero-sub{font-size:15px;color:var(--cloud);max-width:580px;line-height:1.65;margin-bottom:28px;}
+  .hero-meta{display:flex;gap:20px;flex-wrap:wrap;}
+  .hero-badge{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mist);}
+  .hero-badge span{color:var(--teal-glow);}
+
+  .doc-nav{background:var(--white);border-bottom:1px solid var(--frost);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .doc-nav-inner{max-width:900px;margin:0 auto;padding:0 48px;display:flex;overflow-x:auto;}
+  .doc-nav a{display:block;padding:13px 16px;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--mist);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .doc-nav a:hover{color:var(--teal);border-bottom-color:var(--teal-light);}
+
+  .section{max-width:900px;margin:0 auto;padding:52px 48px;border-bottom:1px solid var(--frost);}
+  .section:last-child{border-bottom:none;}
+  .section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mist);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .section-label .num{background:var(--ink);color:var(--teal-light);font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;}
+  h2{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--ink);line-height:1.25;margin-bottom:18px;}
+  h2 em{font-style:italic;color:var(--teal);}
+  h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--ink);margin:32px 0 10px;}
+  h4{font-size:13.5px;font-weight:600;color:var(--slate);margin-bottom:6px;}
+  p{font-size:14px;color:var(--steel);margin-bottom:12px;line-height:1.75;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--slate);font-weight:600;}
+
+  .step-block{margin:20px 0;}
+  .step-header{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+  .step-num{
+    width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--teal-light);
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .step-title{font-size:14px;font-weight:600;color:var(--slate);}
+  .step-desc{font-size:13px;color:var(--mist);margin-left:42px;margin-bottom:10px;line-height:1.6;}
+
+  .prompt-box{position:relative;margin:12px 0 20px;}
+  .prompt-label{
+    font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;
+    padding:6px 14px;border-radius:6px 6px 0 0;display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .prompt-label.copy{background:var(--teal);color:var(--white);}
+  .prompt-label.shell{background:var(--slate);color:var(--cloud);}
+  .prompt-label.verify{background:var(--amber);color:var(--white);}
+  .prompt-label.note{background:var(--violet);color:var(--white);}
+  .prompt-content{
+    background:var(--ink);border-radius:0 8px 8px 8px;
+    padding:20px 22px;overflow-x:auto;
+  }
+  .prompt-content pre{
+    margin:0;padding:0;background:transparent;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;line-height:1.75;color:var(--cloud);
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .prompt-content.shell pre{color:#86efac;}
+  .prompt-content.verify pre{color:#fbbf24;}
+  .prompt-content.note pre{color:#a78bfa;}
+  .highlight{color:var(--teal-light);}
+  .comment{color:#4d5e6e;font-style:italic;}
+  .bold-prompt{color:var(--white);font-weight:600;}
+
+  .callout{border-radius:var(--radius);padding:15px 19px;margin:16px 0;border-left:3px solid;font-size:13.5px;line-height:1.7;color:var(--steel);}
+  .callout-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+  .callout.amber{background:var(--amber-pale);border-color:var(--amber-light);}.callout.amber .callout-label{color:var(--amber);}
+  .callout.teal{background:var(--teal-pale);border-color:var(--teal);}.callout.teal .callout-label{color:var(--teal-deep);}
+  .callout.green{background:var(--green-pale);border-color:var(--green);}.callout.green .callout-label{color:var(--green);}
+  .callout.violet{background:var(--violet-pale);border-color:var(--violet-light);}.callout.violet .callout-label{color:var(--violet);}
+  .callout.rose{background:var(--rose-pale);border-color:var(--rose);}.callout.rose .callout-label{color:var(--rose);}
+
+  .phase-sep{
+    background:var(--ink);border-radius:12px;padding:18px 24px;margin:36px 0 28px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .phase-sep-num{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--teal-light);line-height:1;}
+  .phase-sep-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--white);}
+  .phase-sep-sub{font-size:12px;color:var(--mist);margin-top:2px;}
+  .phase-sep-status{
+    margin-left:auto;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    padding:4px 12px;border-radius:12px;
+  }
+  .status-done{background:var(--teal-pale);color:var(--teal-deep);}
+  .status-active{background:var(--amber-pale);color:var(--amber);}
+  .status-next{background:var(--violet-pale);color:var(--violet);}
+
+  .checklist{list-style:none;padding:0;margin:10px 0;}
+  .checklist li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--steel);padding:4px 0;line-height:1.55;}
+  .chk{width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px;}
+  .chk.done{background:var(--teal-pale);color:var(--teal-deep);border:1px solid rgba(13,148,136,.3);}
+  .chk.todo{background:var(--snow);color:var(--mist);border:1px solid var(--frost);}
+
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+  th{background:var(--ink);color:var(--cloud);padding:9px 14px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;}
+  th:first-child{border-radius:6px 0 0 0;}th:last-child{border-radius:0 6px 0 0;}
+  td{padding:9px 14px;border-bottom:1px solid var(--frost);color:var(--steel);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr:nth-child(even) td{background:var(--snow);}
+
+  code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--frost);color:var(--slate);padding:1px 5px;border-radius:3px;}
+
+  @media(max-width:680px){
+    .hero h1{font-size:28px;}
+    .section{padding:36px 22px;}
+    .hero-inner,.doc-nav-inner{padding:0 22px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Vantage — Healthcare Value Intelligence</div>
+    <h1>Claude Code<br><em>Execution Guide</em></h1>
+    <p class="hero-sub">Precise steps and copy-paste prompts for every phase of Vantage development. Open Claude Code, paste the prompt, verify the output, proceed. Version 1.1 — corrected paths, scaffold cleanup, medical-margin-model primer added.</p>
+    <div class="hero-meta">
+      <div class="hero-badge">version <span>1.1</span></div>
+      <div class="hero-badge">updated <span>March 13, 2026</span></div>
+      <div class="hero-badge">repo <span>mark64oswald/vantage</span></div>
+    </div>
+  </div>
+</div>
+
+<nav class="doc-nav">
+  <div class="doc-nav-inner">
+    <a href="#howto">How to Use</a>
+    <a href="#phase0-cleanup">Phase 0 Cleanup</a>
+    <a href="#healthsim-harvest">HealthSim Harvest</a>
+    <a href="#phase1-data">Phase 1: Data</a>
+    <a href="#phase1-pop">Phase 1: Population</a>
+    <a href="#phase1-risk">Phase 1: Risk Model</a>
+    <a href="#phase1-report">Phase 1: Report</a>
+    <a href="#phase2">Phase 2 Primers</a>
+  </div>
+</nav>
+
+<!-- ═══ HOW TO USE ═══ -->
+<section class="section" id="howto">
+  <div class="section-label"><span class="num">0</span> How to Use This Guide</div>
+  <h2>Open Claude Code. <em>Paste. Verify. Proceed.</em></h2>
+
+  <p>Each prompt in this guide is a complete, self-contained instruction that can be pasted directly into Claude Code's chat interface. Prompts are written to be unambiguous — they include the exact file paths, table names, and validation criteria Claude Code needs to proceed without further clarification.</p>
+
+  <p>The guide is organized as a linear sequence within each phase. Work through steps in order. Each step ends with a <strong>Verify</strong> block — run that check before proceeding to the next step. If verification fails, do not continue; diagnose before building on a broken foundation.</p>
+
+  <div class="callout amber">
+    <div class="callout-label">Key File Locations (v1.1 Corrections)</div>
+    <strong>Schema DDL:</strong> <code>./packages/core/src/vantage/db/schema.py</code> — NOT <code>data/schema.sql</code> (old path). This is Python DDL, not raw SQL.<br>
+    <strong>DB init — library:</strong> <code>./packages/core/src/vantage/db/init_db.py</code> — the importable function.<br>
+    <strong>DB init — CLI:</strong> <code>./scripts/init_db.py</code> — what the <code>/init</code> slash command calls.<br>
+    <strong>DataStore:</strong> <code>./packages/core/src/vantage/db/data_access.py</code> — the correct location. Ignore <code>./packages/core/data_access.py</code> (misplaced duplicate — resolved in step 0.0).
+  </div>
+
+  <div class="callout amber">
+    <div class="callout-label">Before You Start</div>
+    Confirm these prerequisites: (1) Claude Code is open and pointed at <code>~/projects/vantage</code>. (2) <code>git status</code> is clean on <code>main</code>. (3) Python 3.11+ and DuckDB are available. (4) Complete Phase 0 Cleanup steps (starting with 0.0) before any Phase 1 code. (5) CMS V24 and V28 crosswalk CSV files need to be downloaded before Step 1.1.
+  </div>
+
+  <h3>Prompt Box Key</h3>
+  <p>
+    <span style="display:inline-block;background:var(--teal);color:white;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;margin-right:8px;">COPY → CLAUDE CODE</span> Paste directly into Claude Code chat.<br><br>
+    <span style="display:inline-block;background:var(--slate);color:var(--cloud);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;margin-right:8px;">SHELL</span> Run in your terminal (not Claude Code).<br><br>
+    <span style="display:inline-block;background:var(--amber);color:white;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;margin-right:8px;">VERIFY</span> Paste into Claude Code to confirm the prior step succeeded.<br><br>
+    <span style="display:inline-block;background:var(--violet);color:white;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:4px;margin-right:8px;">NOTE</span> Context or decision point — read before proceeding.
+  </p>
+</section>
+
+<!-- ═══ PHASE 0 CLEANUP ═══ -->
+<section class="section" id="phase0-cleanup">
+  <div class="phase-sep">
+    <div class="phase-sep-num">0</div>
+    <div>
+      <div class="phase-sep-title">Phase 0 Cleanup</div>
+      <div class="phase-sep-sub">Scaffold inconsistency resolution, schema verification, and config updates — before Phase 1 coding starts</div>
+    </div>
+    <div class="phase-sep-status status-active">Do First</div>
+  </div>
+
+  <p>The Phase 0 scaffold is complete in <code>mark64oswald/vantage</code>. Minor inconsistencies need to be resolved and a few configuration updates need to be applied to reflect architectural decisions made after the initial scaffold. All changes are additive or cleanup — nothing destructive.</p>
+
+  <!-- STEP 0.0 — NEW -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.0</div>
+      <div class="step-title">Resolve scaffold inconsistencies — cleanup before anything else</div>
+    </div>
+    <div class="step-desc">Two specific repo issues need to be resolved before any other work. This step is new in v1.1 and addresses findings from the repo audit.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Before we start Phase 0 cleanup, I need to resolve two known scaffold inconsistencies. Please do the following:
+
+1. Check if ./packages/core/data_access.py exists. This would be a misplaced file — the correct DataStore abstraction is at ./packages/core/src/vantage/db/data_access.py. If the root-level copy exists:
+   a. Show me the first 20 lines of both files
+   b. If they are the same or the root-level one is an older version, delete the root-level one
+   c. If the root-level one has content NOT in the packages/core/src version, merge the unique content into the correct location, then delete the root-level copy
+
+2. Check if ./src/ exists at the repository root (not to be confused with ./packages/core/src/). If it exists:
+   a. Show me the full directory listing of ./src/
+   b. If it is empty or contains only __init__.py or .gitkeep, delete the directory
+   c. If it contains actual files, show me what they are before any action
+
+Report what you found and what was done.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.1 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.1</div>
+      <div class="step-title">Orient Claude Code to the project</div>
+    </div>
+    <div class="step-desc">Start every Claude Code session with this orientation prompt. It loads the project context and confirms Claude Code understands the Vantage architecture before any code is written.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">I'm working on Vantage, a healthcare value intelligence simulation platform for Medicare Advantage plans. The project is at ~/projects/vantage. Please read the project CLAUDE.md at ./CLAUDE.md and the user-level CLAUDE.md at ~/.claude/CLAUDE.md to orient yourself. Then confirm you understand: (1) what Vantage does, (2) the four outcome domains (Risk Adjustment, Stars/Quality, Medical Cost, RADV), (3) the PHI prohibition, and (4) that DuckDB is the data layer with close-before-write discipline. Don't write any code yet — just confirm your understanding.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.2 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.2</div>
+      <div class="step-title">Verify schema completeness — confirm or apply additions</div>
+    </div>
+    <div class="step-desc">The schema file is at <code>./packages/core/src/vantage/db/schema.py</code>. At 20K bytes it is likely already complete, but we need to verify. If any tables are missing, add them.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Open the schema file at ./packages/core/src/vantage/db/schema.py. This is the DuckDB schema DDL file (Python-formatted CREATE TABLE statements). Check for the following 16 tables across the four schemas:
+
+REFERENCE SCHEMA:
+  reference.hcc_crosswalk
+  reference.raf_coefficients
+  reference.measure_specs
+  reference.pa_criteria_templates
+  reference.effect_weights           ← added post-scaffold; may be missing
+  reference.county_demographics      ← added post-scaffold; may be missing
+
+POPULATION SCHEMA:
+  population.members                 ← confirm has: aco_attributed, attribution_pcp, enrollment_end columns
+  population.member_hccs
+  population.pa_events
+
+SCENARIO SCHEMA:
+  scenario.scenarios
+  scenario.lever_configs             ← confirm lever_type includes: provider_contract, benefit_design
+  scenario.contract_configs
+
+OUTPUT SCHEMA:
+  output.member_raf
+  output.measure_populations         ← five-population model; added post-scaffold; may be missing
+  output.measure_gaps                ← confirm has: closure_probability, reachability, projected_closed
+  output.member_radv_risk            ← added post-scaffold; may be missing
+  output.scenario_summary            ← added post-scaffold; may be missing
+
+For each table: report PRESENT or MISSING. For tables listed as needing specific columns, confirm those columns exist.
+
+If any tables are MISSING, add them now using the DDL below. Show me a summary of what was present and what was added.</span></pre>
+      </div>
+    </div>
+
+    <div class="prompt-box">
+      <div class="prompt-label note">NOTE — DDL for Missing Tables</div>
+      <div class="prompt-content note">
+        <pre>If Claude Code reports missing tables, use this DDL for the additions:
+
+-- reference.effect_weights
+CREATE TABLE IF NOT EXISTS reference.effect_weights (
+  lever_type         VARCHAR NOT NULL,
+  domain             VARCHAR NOT NULL,   -- risk | quality | cost | radv
+  effect_metric      VARCHAR NOT NULL,
+  base_effect        DECIMAL(10,4) NOT NULL,
+  effect_low         DECIMAL(10,4) NOT NULL,
+  effect_high        DECIMAL(10,4) NOT NULL,
+  unit_description   VARCHAR,
+  source_citation    VARCHAR,
+  confidence         VARCHAR,            -- high | medium | low
+  sdoh_modifier_json VARCHAR,            -- JSON: SVI/dual/rural multipliers (3 levers)
+  created_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (lever_type, domain, effect_metric)
+);
+
+-- reference.county_demographics
+CREATE TABLE IF NOT EXISTS reference.county_demographics (
+  county_fips        VARCHAR PRIMARY KEY,
+  state_fips         VARCHAR NOT NULL,
+  county_name        VARCHAR,
+  ma_penetration_pct DECIMAL(5,2),
+  dual_eligible_pct  DECIMAL(5,2),
+  svi_composite      DECIMAL(5,3),
+  rural_urban_code   VARCHAR,
+  total_population   INTEGER,
+  medicare_pop       INTEGER
+);
+
+-- output.measure_populations (five-population eCQM model)
+CREATE TABLE IF NOT EXISTS output.measure_populations (
+  scenario_id      VARCHAR NOT NULL,
+  member_id        VARCHAR NOT NULL,
+  measure_id       VARCHAR NOT NULL,
+  population_type  VARCHAR NOT NULL   -- IPP | denominator | numerator | exclusion | exception
+);
+
+-- output.member_radv_risk
+CREATE TABLE IF NOT EXISTS output.member_radv_risk (
+  scenario_id                VARCHAR NOT NULL,
+  member_id                  VARCHAR NOT NULL,
+  hcc_code                   VARCHAR NOT NULL,
+  documentation_complete     BOOLEAN,
+  documentation_specificity  VARCHAR,    -- high | medium | low
+  encounter_to_doc_lag_days  INTEGER,
+  audit_risk_score           DECIMAL(4,3),
+  PRIMARY KEY (scenario_id, member_id, hcc_code)
+);
+
+-- output.scenario_summary
+CREATE TABLE IF NOT EXISTS output.scenario_summary (
+  scenario_id          VARCHAR PRIMARY KEY,
+  risk_revenue_delta   DECIMAL(12,2),
+  quality_bonus_delta  DECIMAL(12,2),
+  medical_cost_delta   DECIMAL(12,2),
+  radv_exposure_delta  DECIMAL(12,2),
+  net_value            DECIMAL(12,2),
+  roi_ratio            DECIMAL(6,2),
+  confidence_low       DECIMAL(12,2),
+  confidence_high      DECIMAL(12,2),
+  break_even_month     SMALLINT,
+  modifiers_applied_json VARCHAR
+);</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.3 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.3</div>
+      <div class="step-title">Update project CLAUDE.md — four domains, PA as lever, cross-domain rule</div>
+    </div>
+    <div class="step-desc">The project-level CLAUDE.md was written before RADV was formalized as a fourth outcome domain and before PA-as-lever was confirmed as an architectural principle.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read the project-level CLAUDE.md at ./CLAUDE.md. Find the section that describes the outcome domains. Update it to reflect that Vantage has FOUR outcome domains:
+
+1. Risk Adjustment → Base Capitation Revenue (CMS-HCC V24/V28 RAF scoring)
+2. Stars / Quality → Quality Bonus Revenue (HEDIS, CAHPS, 40+ measures)
+3. Medical Cost / MLR → Medical Margin (TCOC, utilization, VBC contracts, MLR)
+4. RADV Audit Risk → Audit Liability (documentation completeness, audit risk exposure)
+
+If there is a section on Prior Authorization, update it to make clear: PA is a cross-domain LEVER (intervention input), not a domain. Its effects cascade through all four domains.
+
+Add this rule to the CLAUDE.md instructions section: "When a user asks a question about any single domain, always surface the cross-domain implications. A question about Stars improvement from a CDM program should also surface the Risk Adjustment and Medical Cost implications."
+
+Show me the updated CLAUDE.md sections (don't show unchanged sections).</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.4 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.4</div>
+      <div class="step-title">Update risk-model SKILL.md — add RADV as fourth domain output</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read ./skills/risk-model/SKILL.md. This skill currently handles Risk Adjustment (RAF scoring, HCC coding). Add a new section describing RADV as the fourth outcome domain that this skill is also responsible for modeling:
+
+## RADV Audit Risk Modeling
+
+The risk-model skill produces output.member_radv_risk in addition to output.member_raf. RADV models the liability side of the risk adjustment balance sheet — the audit exposure that offsets RAF revenue.
+
+For each coded HCC per member, track:
+- documentation_complete (BOOLEAN): does the coded HCC have supporting clinical documentation?
+- documentation_specificity ('high' | 'medium' | 'low'): is the ICD-10 code specific enough to withstand audit?
+- encounter_to_doc_lag_days (INTEGER): gap between encounter date and documentation date
+- audit_risk_score (DECIMAL 0–1): composite risk score; higher = more likely to fail RADV audit
+
+Aggregate audit_risk_score to plan and cohort level in output.scenario_summary.radv_exposure_delta.
+
+Net risk adjustment position = risk_revenue_delta + radv_exposure_delta
+(where radv_exposure_delta is negative for increased audit liability)
+
+Also update the Trigger section to include: RADV exposure analysis, audit risk scoring, net RAF position calculation.
+
+Show me the updated SKILL.md.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.5 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.5</div>
+      <div class="step-title">Update lever_type enum + scenario-runner SKILL.md</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">In the schema file at ./packages/core/src/vantage/db/schema.py, find the scenario.lever_configs table. Update the comment listing valid lever_type values to reflect the complete set of six intervention levers:
+
+-- lever_type valid values:
+-- coding_program | cdm | pa_policy | formulary |
+-- steerage | provider_contract | benefit_design | v28_response
+
+Then read ./skills/scenario-runner/SKILL.md and confirm it references these same lever types. If its list is shorter or different, update it to match. Show me any changes made.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 0.6 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">0.6</div>
+      <div class="step-title">Commit Phase 0 cleanup</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Stage and commit all Phase 0 cleanup changes. Use this commit message:
+
+"chore: Phase 0 scaffold cleanup and config alignment
+
+- Remove packages/core/data_access.py (misplaced duplicate; correct file is at packages/core/src/vantage/db/)
+- Remove src/ root directory if empty
+- schema.py: verify/add reference.effect_weights, reference.county_demographics, output.measure_populations, output.member_radv_risk, output.scenario_summary; confirm population.members has aco_attributed and attribution_pcp columns; update lever_type comment with full 8-value list
+- CLAUDE.md: update to four outcome domains (adding RADV); clarify PA as cross-domain lever; add cross-domain surface rule
+- skills/risk-model/SKILL.md: add RADV audit risk modeling section
+- skills/scenario-runner/SKILL.md: update lever_type list to match schema
+
+These changes align the scaffold with all architectural decisions made after the initial Phase 0 push."
+
+Push to origin/main.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label verify">VERIFY — Phase 0 Cleanup Complete</div>
+    <div class="prompt-content verify">
+      <pre>Confirm the following: (1) packages/core/data_access.py does NOT exist (deleted). (2) No empty src/ directory at repo root. (3) schema.py contains all 16 tables listed in step 0.2. (4) CLAUDE.md lists four outcome domains including RADV. (5) risk-model SKILL.md has a RADV section. (6) lever_type comment lists all 8 levers. (7) No .duckdb files are tracked in git. Report OK or FAIL for each.</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HEALTHSIM HARVEST ═══ -->
+<section class="section" id="healthsim-harvest">
+  <div class="phase-sep">
+    <div class="phase-sep-num">0.5</div>
+    <div>
+      <div class="phase-sep-title">HealthSim Harvest</div>
+      <div class="phase-sep-sub">Selectively copy proven patterns from HealthSim into Vantage — before writing any Phase 1 code</div>
+    </div>
+    <div class="phase-sep-status status-active">Do Before Phase 1</div>
+  </div>
+
+  <h2>Selective copy, <em>not a git fork.</em></h2>
+
+  <p>HealthSim contains several battle-tested patterns that Vantage should inherit directly. The goal is to bring forward the specific modules that solve hard, already-solved problems — particularly DuckDB concurrency discipline — without carrying HealthSim's domain logic, data model, or git history.</p>
+
+  <p>The Vantage repo already has scaffold versions of the data layer files. The HealthSim harvest will replace or augment these with the proven production implementations. The population-engine scaffold exists but has only placeholder functions — HealthSim provides the structural patterns to build out the real implementation.</p>
+
+  <div class="callout amber">
+    <div class="callout-label">Important: Two data_access.py Files Resolved</div>
+    After step 0.0, only ONE data_access.py exists: <code>./packages/core/src/vantage/db/data_access.py</code>. The HealthSim harvest target for step H.3 is this file. Do not recreate the root-level copy.
+  </div>
+
+  <h3>What to Harvest vs. What to Leave Behind</h3>
+
+  <table style="font-size:13px;margin:16px 0;">
+    <thead>
+      <tr><th>HealthSim Module</th><th>Action</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>db/connection.py</code> — ConnectionManager</td>
+        <td style="color:var(--teal-deep);font-weight:600;">✓ Copy + adapt</td>
+        <td>Close-before-write pattern, retry with exponential backoff, CHECKPOINT discipline. The hardest DuckDB problem, already solved.</td>
+      </tr>
+      <tr style="background:var(--snow);">
+        <td><code>db/data_access.py</code> — DataStore interface</td>
+        <td style="color:var(--teal-deep);font-weight:600;">✓ Copy + adapt</td>
+        <td>The abstraction that makes future Databricks/Snowflake portability possible. Strip HealthSim-specific query methods; keep the interface contract. Target: <code>packages/core/src/vantage/db/data_access.py</code>.</td>
+      </tr>
+      <tr>
+        <td><code>db/duckdb_store.py</code> — DuckDBStore impl</td>
+        <td style="color:var(--teal-deep);font-weight:600;">✓ Copy + adapt</td>
+        <td>Concrete DuckDB implementation of DataStore. Replace HealthSim schema references; keep the connection lifecycle logic.</td>
+      </tr>
+      <tr style="background:var(--snow);">
+        <td>Population generation framework</td>
+        <td style="color:var(--amber);font-weight:600;">~ Structure only</td>
+        <td>Copy the architecture (parameter validation, seeding, bulk insert pattern). Rebuild the domain content (MA demographics, HCC assignment) from scratch — HealthSim's entities are different.</td>
+      </tr>
+      <tr>
+        <td>TrialSim, RxMemberSim, NetworkSim</td>
+        <td style="color:var(--mist);">✗ Leave entirely</td>
+        <td>Different domain. No reusable patterns specific to MA simulation.</td>
+      </tr>
+      <tr style="background:var(--snow);">
+        <td>NPPES import utilities</td>
+        <td style="color:var(--mist);">✗ Leave for now</td>
+        <td>Phase 1 uses synthetic NPIs. Revisit in Phase 2 when real provider attribution matters.</td>
+      </tr>
+      <tr>
+        <td>Git LFS / <code>.gitattributes</code></td>
+        <td style="color:var(--mist);">✗ Leave entirely</td>
+        <td>Vantage never tracks .duckdb files in Git. No LFS needed.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- STEP H.1 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.1</div>
+      <div class="step-title">Locate and inspect HealthSim source</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">I have a HealthSim project on this machine that we're going to selectively harvest from. First, find it:
+
+1. Check these likely locations: ~/projects/healthsim, ~/healthsim, ~/Documents/healthsim, ~/code/healthsim
+2. Once found, show me the directory structure (top 2 levels only)
+3. Then show me which of these specific files exist:
+   - Any file named connection.py or connection_manager.py under a db/ or database/ directory
+   - Any file named data_access.py or data_store.py or store.py
+   - Any file named duckdb_store.py or duckdb.py
+   - Any file in a directory named "population" or "generator"
+   - The main CLAUDE.md (if it has one)
+
+Don't read file contents yet — just confirm what exists and where.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.2 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.2</div>
+      <div class="step-title">Harvest the ConnectionManager</div>
+    </div>
+    <div class="step-desc">This is the highest-value module to carry forward. The close-before-write pattern prevents DuckDB lock contention issues HealthSim encountered.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read the HealthSim connection manager file (connection.py or equivalent found in H.1). Then create an adapted version at ./packages/core/src/vantage/db/connection.py with these changes:
+
+KEEP from HealthSim:
+- The close-before-write pattern: close the read connection before opening a write connection
+- Retry logic with exponential backoff (100ms → 200ms → 400ms, up to 3 retries)
+- Explicit CHECKPOINT after writes to flush WAL and release locks cleanly
+- The 50ms sleep between connection close and reopen (OS-level lock release)
+- The read-only connection as the persistent default
+
+CHANGE for Vantage:
+- Replace any HealthSim-specific class names or imports with Vantage equivalents
+- Replace HealthSim-specific schema or table references with Vantage's four schemas: reference, population, scenario, output
+- Update the module docstring to reference Vantage, not HealthSim
+- Add a class-level comment: "# Adapted from HealthSim ConnectionManager — do not sync back"
+- If HealthSim had WAL mode disabled: enable it (PRAGMA journal_mode=WAL)
+
+Show me the complete adapted file.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.3 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.3</div>
+      <div class="step-title">Harvest the DataStore abstraction</div>
+    </div>
+    <div class="step-desc">The DataStore interface is what makes Vantage's data layer swappable. The existing file at <code>packages/core/src/vantage/db/data_access.py</code> is a scaffold version — replace it with the HealthSim-adapted production version.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read the HealthSim DataStore abstraction file (data_access.py, data_store.py, or equivalent found in H.1). Then REPLACE the existing scaffold at ./packages/core/src/vantage/db/data_access.py with an adapted version that:
+
+KEEP from HealthSim:
+- The abstract base class pattern (ABC)
+- Core interface methods: execute_query, execute_write, get_connection, close
+- Any context manager (__enter__/__exit__) patterns
+- The pattern for passing schema-qualified table names
+
+CHANGE for Vantage:
+- Remove any HealthSim-specific query methods that reference HealthSim tables or entities
+- Add Vantage-specific convenience methods:
+    def get_reference_data(self, table: str, filters: dict = None) -> list
+    def write_scenario_output(self, table: str, records: list, scenario_id: str) -> int
+    def get_population_members(self, scenario_id: str = None) -> list
+- Add method stubs with NotImplementedError for: query_population, write_raf_scores, write_measure_populations, write_scenario_summary
+- Update docstring: "DataStore abstraction for Vantage. DuckDB in development; designed for Databricks/Snowflake in production."
+- Add comment: "# Adapted from HealthSim DataStore — do not sync back"
+
+Show me the complete adapted file.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.4 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.4</div>
+      <div class="step-title">Harvest the DuckDB store implementation</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read the HealthSim DuckDB store implementation (duckdb_store.py or equivalent). Then REPLACE the existing scaffold at ./packages/core/src/vantage/db/duckdb_store.py with an adapted version:
+
+KEEP from HealthSim:
+- The class structure implementing the DataStore interface
+- The connection lifecycle (uses ConnectionManager from H.2)
+- Any bulk insert patterns (executemany or COPY FROM for performance)
+- The schema initialization approach (CREATE SCHEMA IF NOT EXISTS pattern)
+- Error handling for connection failures
+
+CHANGE for Vantage:
+- Import the Vantage ConnectionManager (./connection.py, not HealthSim's)
+- Implement the Vantage-specific methods from the DataStore interface in H.3
+- Database path default: './data/vantage.duckdb'
+- Initialize these four schemas on first connection: reference, population, scenario, output
+- Remove any HealthSim-specific table initialization or seed data
+- Comment: "# Adapted from HealthSim DuckDBStore — do not sync back"
+
+After writing, also update ./packages/core/src/vantage/db/__init__.py to export: ConnectionManager, DataStore, DuckDBStore.
+
+Show me both files.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.5 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.5</div>
+      <div class="step-title">Harvest population generation structure</div>
+    </div>
+    <div class="step-desc">Copy the architectural pattern only — parameter handling, seed management, bulk write approach. The domain content (MA demographics, HCC assignment) will be built in Phase 1.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Read the HealthSim population generation code (look in population/, generator/, or files named generate_population.py, population_generator.py, or similar). Focus on:
+
+1. How it handles the seed parameter for reproducibility
+2. How it validates input parameters
+3. How it writes generated records to DuckDB in bulk (not row-by-row)
+4. How it handles progress reporting during generation
+
+Then REPLACE the existing scaffold at ./skills/population-engine/scripts/population_generator.py with a structural scaffold that:
+
+- Uses the same seed/reproducibility pattern as HealthSim (document which library: random, numpy.random, or Faker)
+- Uses the same bulk-insert approach (adapt for Vantage's DuckDB schema)
+- Uses the same parameter validation pattern (dataclass or TypedDict for config)
+- Has placeholder functions for MA-specific content (to be filled in Phase 1):
+    def _generate_member_demographics(n: int, seed: int, county_fips: str) -> list: ...
+    def _assign_hcc_conditions(members: list, hcc_prevalences: dict) -> list: ...
+    def _apply_hcc_hierarchy(member_hccs: list, model_year: int) -> list: ...
+
+Add a comment block at the top:
+# Population generator for Vantage.
+# Architecture adapted from HealthSim population generation patterns.
+# Domain content (MA demographics, HCC assignment) is Vantage-specific.
+# Do not sync architectural changes back to HealthSim.
+
+Show me the complete scaffold file.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.6 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.6</div>
+      <div class="step-title">Validate the harvested data layer</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Write a test file at ./tests/test_data_layer.py that validates the harvested data layer works correctly. Include:
+
+1. test_connection_open_close: Open a DuckDB connection, close it, confirm no lock is held
+2. test_close_before_write: Simulate the close-before-write pattern — open read connection, close it, open write connection, write a test row, close write connection, reopen read connection, confirm the row is readable
+3. test_schema_initialization: Initialize a fresh DuckDB via DuckDBStore, confirm all four schemas (reference, population, scenario, output) are created
+4. test_datastore_interface: Instantiate DuckDBStore and confirm it satisfies the DataStore interface (has all required abstract methods implemented)
+
+Use a temporary database path (./data/test_harvest.duckdb) that is cleaned up after tests.
+
+Run the tests after writing them. If any fail due to adaptation issues in H.2–H.5, fix them now.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP H.7 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">H.7</div>
+      <div class="step-title">Commit the harvest</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">All data layer harvest tests pass. Stage and commit with message:
+
+"feat: harvest HealthSim data layer patterns into Vantage
+
+- packages/core/src/vantage/db/connection.py: ConnectionManager with close-before-write, retry/backoff, CHECKPOINT. Adapted from HealthSim, not synced back.
+- packages/core/src/vantage/db/data_access.py: DataStore abstract interface with Vantage-specific methods. Enables future Databricks/Snowflake swap.
+- packages/core/src/vantage/db/duckdb_store.py: DuckDB implementation of DataStore. Four-schema initialization.
+- skills/population-engine/scripts/population_generator.py: Generation scaffold with HealthSim bulk-insert and seed patterns; MA domain content is Phase 1 work.
+- tests/test_data_layer.py: Data layer validation tests.
+
+No HealthSim source files included. These are adapted Vantage-owned copies."
+
+Push to origin/main.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label verify">VERIFY — HealthSim Harvest Complete</div>
+    <div class="prompt-content verify">
+      <pre>Confirm: (1) packages/core/src/vantage/db/ contains connection.py, data_access.py, duckdb_store.py, __init__.py. (2) Each has the "Adapted from HealthSim — do not sync back" comment. (3) None contain imports from or references to the HealthSim project path. (4) All test_data_layer.py tests pass. (5) No .duckdb files are in Git.</pre>
+    </div>
+  </div>
+
+  <div class="callout teal">
+    <div class="callout-label">What Comes Next</div>
+    With the data layer harvested and validated, Phase 1B (Population Engine) is straightforward: the <code>population_generator.py</code> scaffold already exists with the right bulk-insert and seed patterns. Phase 1 fills in the MA-specific domain content — demographics, HCC assignment, hierarchy logic — not the infrastructure.
+  </div>
+</section>
+
+<!-- ═══ PHASE 1: DATA FOUNDATION ═══ -->
+<section class="section" id="phase1-data">
+  <div class="phase-sep">
+    <div class="phase-sep-num">1A</div>
+    <div>
+      <div class="phase-sep-title">Phase 1 — Data Foundation</div>
+      <div class="phase-sep-sub">Load CMS reference data before writing any calculation code</div>
+    </div>
+    <div class="phase-sep-status status-active">Week 1–2</div>
+  </div>
+
+  <div class="callout teal">
+    <div class="callout-label">CMS Source Files</div>
+    Download these before starting: <strong>V24 Crosswalk</strong> — CMS publishes the "ICD-10-CM Mappings" file in the MA Rate Announcement package at cms.gov. Search "2023 CMS-HCC Model V24 ICD-10 Mappings." <strong>V28 Crosswalk</strong> — In the 2024 Final Rate Announcement package. Search "2024 CMS-HCC Model V28 ICD-10 Mappings." <strong>Ratebook files</strong> — Also in the same rate announcement packages; look for "2024 MA Ratebook" Excel files containing segment-specific RAF coefficients. Stage all files in <code>reference-data/cms/</code> before running Step 1.1.
+  </div>
+
+  <!-- STEP 1.1 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.1</div>
+      <div class="step-title">Create the CMS reference data loader</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Create a data loader at ./data/loaders/load_cms_reference.py that:
+
+1. Reads ./reference-data/cms/icd10-hcc-mappings-v24.csv and loads it into reference.hcc_crosswalk (model_version='V24')
+2. Reads ./reference-data/cms/icd10-hcc-mappings-v28.csv and loads it into reference.hcc_crosswalk (model_version='V28')
+3. Reads ./reference-data/cms/raf-coefficients-v24.csv and loads it into reference.raf_coefficients (model_version='V24')
+4. Reads ./reference-data/cms/raf-coefficients-v28.csv and loads it into reference.raf_coefficients (model_version='V28')
+
+Expected columns in hcc_crosswalk: icd10_code, cc_code, hcc_code, model_version, label
+Expected columns in raf_coefficients: hcc_code, member_segment, coefficient, model_version
+
+Use DuckDBStore from packages/core/src/vantage/db/ (not a direct duckdb import). Use the bulk-insert pattern from the HealthSim harvest. Show me the complete loader file.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.2 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.2</div>
+      <div class="step-title">Load and validate CMS reference data</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Run the CMS reference data loader: python ./data/loaders/load_cms_reference.py
+
+Then validate the load by running these checks:
+1. COUNT(*) from reference.hcc_crosswalk WHERE model_version='V24' — should be thousands of rows
+2. COUNT(*) from reference.hcc_crosswalk WHERE model_version='V28' — should be thousands of rows
+3. COUNT(*) from reference.raf_coefficients WHERE model_version='V28'
+4. A spot check: SELECT * FROM reference.hcc_crosswalk WHERE icd10_code='E11.9' — this is Type 2 Diabetes without complications; it should map to an HCC in both V24 and V28. Show the mapping for both versions.
+5. A spot check: SELECT * FROM reference.raf_coefficients WHERE hcc_code='18' AND model_version='V28' AND member_segment='CNA' — HCC 18 is Diabetes w/ Chronic Complications; show the coefficient.
+
+Report counts and spot check results. If any check fails, diagnose before proceeding.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.3 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.3</div>
+      <div class="step-title">Write HCC mapping unit tests (CMS-verifiable)</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Replace the stub at ./tests/test_risk_model.py with real unit tests. These should be verification tests against CMS published crosswalk data (now loaded in DuckDB). Include:
+
+test_icd10_maps_to_hcc_v28: E11.9 should map to a specific HCC under V28. Query the database to get the expected HCC, then confirm the mapper produces the same result.
+
+test_icd10_maps_to_hcc_v24: E11.9 should also map under V24. Confirm the V24 mapping is different from V28 if the code was reclassified in the model update.
+
+test_hcc_hierarchy_diabetes: A member with both HCC 17 (Diabetes without Complications) and HCC 18 (Diabetes with Chronic Complications) should only have HCC 18 in the final HCC list after hierarchy is applied. Add a TODO stub for this test if the hierarchy logic isn't built yet.
+
+test_raf_coefficient_lookup_v28: HCC 18 in the CNA segment under V28 should return a specific coefficient from the ratebook. Confirm the lookup returns a non-zero DECIMAL.
+
+test_raf_coefficient_lookup_v24: Same member under V24 should return a different coefficient (coefficients changed in V28). Confirm V24 ≠ V28 for this HCC.
+
+Run all tests. If the mapper logic doesn't exist yet, confirm at least the database lookup tests pass (they confirm data loaded correctly).</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label verify">VERIFY — Data Foundation Complete</div>
+    <div class="prompt-content verify">
+      <pre>Confirm: (1) reference.hcc_crosswalk has data for both V24 and V28. (2) reference.raf_coefficients has data for both V24 and V28. (3) E11.9 maps to an HCC in both versions (spot check passes). (4) test_risk_model.py tests pass (or clearly identify which stubs need the mapper before they can pass). Commit with message: "data: load CMS V24/V28 reference data + unit test stubs"</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHASE 1: POPULATION ENGINE ═══ -->
+<section class="section" id="phase1-pop">
+  <div class="phase-sep">
+    <div class="phase-sep-num">1B</div>
+    <div>
+      <div class="phase-sep-title">Phase 1 — Population Engine</div>
+      <div class="phase-sep-sub">Synthetic MA population generation calibrated to realistic demographics</div>
+    </div>
+    <div class="phase-sep-status status-active">Week 2–3</div>
+  </div>
+
+  <!-- STEP 1.4 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.4</div>
+      <div class="step-title">Build MA demographic generation</div>
+    </div>
+    <div class="step-desc">Fill in the <code>_generate_member_demographics</code> placeholder function in the population generator scaffold.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Open ./skills/population-engine/scripts/population_generator.py. Find the placeholder function _generate_member_demographics(n, seed, county_fips). Implement it to generate a list of n member records with:
+
+- member_id: UUID (deterministic from seed + index)
+- age: distribution calibrated to MA enrollment (age 65–95, mode ~72, right-skewed)
+- sex: 60% female / 40% male (approximate MA population distribution)
+- county_fips: the provided FIPS code
+- enrollment_start: random date within the past 3 years
+- enrollment_end: NULL (currently enrolled)
+- member_segment: derived from age/disability status — 'CNA' for community non-dual non-ESRD (majority), 'LTI' for long-term institutional, 'NE' for new enrollees (under 65 disabled). Use 92% CNA / 5% LTI / 3% NE as approximate distribution.
+- dual_eligible: BOOLEAN — approximately 18% of MA members
+- aco_attributed: BOOLEAN — approximately 25% of members in VBC-active markets
+
+Reference the reference.county_demographics table to check if the county_fips has data; if so, use the dual_eligible_pct from that table instead of the 18% default.
+
+Show me the implemented function.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.5 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.5</div>
+      <div class="step-title">Build HCC condition assignment</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Implement the _assign_hcc_conditions placeholder function. This assigns HCC conditions to members based on age-calibrated prevalence rates for the Medicare Advantage population. Use these approximate prevalence rates (sourced from CMS MA population statistics):
+
+High prevalence (30–50% of members):
+- HCC 19: Diabetes without Complications (~35%)
+- HCC 85: Congestive Heart Failure (~20%)
+- HCC 108: Vascular Disease (~28%)
+
+Moderate prevalence (10–25%):
+- HCC 18: Diabetes with Chronic Complications (~18%)
+- HCC 22: Morbid Obesity (~15%)
+- HCC 58: Major Depressive Disorder (~12%)
+- HCC 111: COPD (~14%)
+
+Lower prevalence (3–10%):
+- HCC 8: Metastatic Cancer (~4%)
+- HCC 10: Lymphatic, Head, Neck Cancers (~5%)
+- HCC 17: Diabetes with Acute Complications (~6%)
+
+Rules:
+- Apply HCC hierarchy: if a member has both HCC 18 and HCC 19, remove HCC 19 (less severe diabetes)
+- Age-adjustment: increase prevalence by 1.5x for members over 80
+- Seed-controlled: use numpy.random.Generator seeded per member_id for reproducibility
+
+Return list of (member_id, hcc_code) tuples. Show me the complete implementation.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.6 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.6</div>
+      <div class="step-title">Run an end-to-end population generation test</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Run a test population generation:
+
+1. Generate 1,000 members (seed=42, county_fips='06037' for Los Angeles County)
+2. Write them to population.members and population.member_hccs in the test database
+3. Run these validation queries:
+   a. Average age (should be 72–76)
+   b. Sex distribution (should be ~60F/40M)
+   c. % with any HCC (should be 60–80%)
+   d. Most common HCC and its count
+   e. Average number of HCCs per member (should be 1.5–3.0)
+
+If any result is significantly outside the expected range, diagnose and fix before proceeding to the RAF scorer. A poorly calibrated population will produce invalid RAF scores.
+
+Show me the query results and a one-line assessment of each.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHASE 1: RISK MODEL ═══ -->
+<section class="section" id="phase1-risk">
+  <div class="phase-sep">
+    <div class="phase-sep-num">1C</div>
+    <div>
+      <div class="phase-sep-title">Phase 1 — Risk Model Core</div>
+      <div class="phase-sep-sub">RAF scoring + V24/V28 dual-scoring delta analysis</div>
+    </div>
+    <div class="phase-sep-status status-active">Week 3–4</div>
+  </div>
+
+  <!-- STEP 1.7 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.7</div>
+      <div class="step-title">Build the RAF scorer</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Create ./skills/risk-model/scripts/raf_scorer.py. This is the core RAF calculation engine. Inputs: population.members + population.member_hccs + reference.hcc_crosswalk + reference.raf_coefficients. Output: output.member_raf rows.
+
+The RAF score for a member is:
+  RAF = demographic_coefficient + sum(hcc_coefficients for all valid HCCs after hierarchy)
+
+For each member:
+1. Look up the demographic coefficient from reference.raf_coefficients using (member_segment, age_sex_category)
+2. For each of the member's HCCs, look up the coefficient from reference.raf_coefficients using (hcc_code, member_segment, model_version)
+3. Sum demographic + HCC coefficients → RAF score
+4. Compute for BOTH V24 and V28 (same logic, different coefficient table rows)
+5. Write a row to output.member_raf: (scenario_id, member_id, model_version, raf_score, demographic_component, hcc_component)
+
+Important: Dual-eligible members use different coefficient tables. New Enrollee segment uses a different model (NEE model, not CMS-HCC). Add segment-branch logic.
+
+Show me the complete raf_scorer.py implementation.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.8 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.8</div>
+      <div class="step-title">Validate RAF scores against CMS published examples</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Run the RAF scorer against the test population (1,000 members from step 1.6). Then validate:
+
+1. Mean RAF score V24 (expected range for MA population: 0.8–1.4)
+2. Mean RAF score V28 (expected to be lower than V24 due to transition)
+3. Mean V24 - V28 delta (expect negative — V28 generally reduces scores)
+4. What % of members have V28 < V24 (expect majority)
+5. What % have V28 > V24 (some HCCs got higher weights in V28)
+
+Also run the CMS-verifiable test: if you have a member with age 72, female, CNA segment, and HCC 18 only, what is their V28 RAF score? This should match a known value from the CMS V28 Ratebook.
+
+Report all validation results. If mean RAF is outside expected range, diagnose before building the report.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.9 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.9</div>
+      <div class="step-title">Build the V28 delta analyzer</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Create ./skills/risk-model/scripts/v28_delta_analyzer.py. This takes the output.member_raf table (which has both V24 and V28 rows) and produces the delta analysis needed for the V28 exposure report.
+
+Compute and store these results (in output.scenario_summary or a new output.v28_analysis table):
+
+1. Plan-level summary:
+   - mean_raf_v24, mean_raf_v28, mean_delta
+   - total_member_count
+   - annual_revenue_exposure (mean_delta × member_count × 12 × assumed_monthly_capitation)
+   - assumed_monthly_capitation: use $1,100 as default (parameterizable)
+
+2. HCC-level exposure ranking:
+   - For each HCC, what is the average coefficient change V24→V28?
+   - What % of members have this HCC?
+   - What is the total revenue exposure from this HCC's reclassification?
+   - Rank by total_revenue_exposure descending
+
+3. Concentration analysis:
+   - What % of members drive the top 80% of exposure?
+   - Member exposure distribution (deciles)
+
+Show me the complete v28_delta_analyzer.py and the output schema for its results.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHASE 1: REPORT ═══ -->
+<section class="section" id="phase1-report">
+  <div class="phase-sep">
+    <div class="phase-sep-num">1D</div>
+    <div>
+      <div class="phase-sep-title">Phase 1 — V28 Exposure Report</div>
+      <div class="phase-sep-sub">The deliverable — a shareable HTML report for consulting firm use</div>
+    </div>
+    <div class="phase-sep-status status-active">Week 4–5</div>
+  </div>
+
+  <!-- STEP 1.10 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.10</div>
+      <div class="step-title">Build the V28 HTML report generator</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Create ./skills/risk-model/scripts/generate_v28_report.py. This generates a shareable HTML report from the delta analysis results.
+
+The report should include these sections:
+1. Cover: Plan name (parameterizable), population summary (member count, geography, date of analysis, Vantage attribution)
+2. Executive Summary: Total V28 revenue exposure in dollars (annual), % of members affected, directional change (most plans see reduction)
+3. V24 vs V28 Comparison: Side-by-side mean RAF, distribution chart (use inline SVG or a simple HTML table with bar visualization — NO external JS dependencies)
+4. Top 10 HCC Categories by Exposure: ranked table with HCC code, name, member prevalence, V24/V28 coefficient delta, total annual revenue impact
+5. Concentration Analysis: text + simple table showing what % of members drive 80% of exposure
+6. Methodology Note: cite the CMS V28 model source, explain that population is synthetic/modeled, note confidence level
+
+Design requirements:
+- Self-contained HTML — no external dependencies
+- Professional appearance suitable for consulting firm use
+- Must look credible enough to hand to a VP Strategy or CFO
+- Include a "Powered by Vantage Healthcare Value Intelligence" footer
+
+Show me the complete generator function. Output file path: ./outputs/v28_exposure_report.html</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.11 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.11</div>
+      <div class="step-title">Seed the effect weight library (Phase 2 parallel track)</div>
+    </div>
+    <div class="step-desc">Begin populating reference.effect_weights while report template polish is underway. This prevents a Phase 2 bottleneck.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Create ./data/loaders/load_effect_weights.py. This loads the initial evidence-based effect weight library into reference.effect_weights.
+
+For each of these lever/domain combinations, find supporting literature and populate a row with base_effect, effect_low, effect_high, source_citation, and confidence:
+
+1. lever='cdm', domain='risk' — CDM (chronic disease management) programs and HCC documentation rates
+2. lever='cdm', domain='quality' — CDM programs and HEDIS adherence measure rates
+3. lever='cdm', domain='cost' — CDM programs and medical cost reduction (TCOC)
+4. lever='coding_program', domain='risk' — coding/documentation programs and RAF score change
+5. lever='coding_program', domain='radv' — coding programs and RADV audit risk reduction
+6. lever='formulary', domain='quality' — formulary optimization and adherence measure rates
+7. lever='formulary', domain='cost' — formulary optimization and pharmacy cost impact
+8. lever='pa_policy', domain='cost' — PA restrictiveness and TCOC change
+9. lever='pa_policy', domain='quality' — PA policy and care gap completion rates
+
+For each entry, search the peer-reviewed literature (JAMA, NEJM, health affairs, actuarial studies) for quantitative effect sizes. Document the source in source_citation. Use confidence='medium' unless multiple concordant studies justify 'high'.
+
+Show me the complete loader file with your literature-sourced effect sizes and citations.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.12 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.12</div>
+      <div class="step-title">End-to-end Phase 1 integration run</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Run the complete Phase 1 pipeline end to end:
+
+1. Generate a fresh 10,000-member synthetic population (seed=99, county_fips='06037' — Los Angeles County)
+2. Score the population under both V24 and V28
+3. Run the V28 delta analysis
+4. Generate the HTML report at ./outputs/v28_test_report.html
+
+After each step, print a one-line status. At the end, print:
+- Total wall-clock time for all 4 steps
+- Mean RAF V24 and V28 for the population
+- Total annual revenue exposure (V28 delta × members × 12 × PMPM)
+- Path to the generated report
+
+If any step fails, stop and report the error with the stack trace. Do not proceed past a failure.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1.13 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">1.13</div>
+      <div class="step-title">Commit Phase 1 complete</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">Run the full test suite:
+  pytest ./tests/ -v --tb=short
+
+If all tests pass, stage and commit with message:
+
+"feat: Phase 1 complete — population engine, RAF scorer, V28 exposure report
+
+- data/loaders/load_cms_reference.py: CMS V24/V28 crosswalk and coefficient loader
+- data/loaders/load_effect_weights.py: intervention effect weight library seed (9 entries)
+- skills/population-engine/scripts/population_generator.py: synthetic MA population (10K members, LA County validated)
+- skills/risk-model/scripts/raf_scorer.py: CMS-HCC V24/V28 RAF scoring engine
+- skills/risk-model/scripts/v28_delta_analyzer.py: V24/V28 dual-scoring delta analysis
+- skills/risk-model/scripts/generate_v28_report.py: shareable HTML exposure report
+- tests/test_risk_model.py: CMS-verifiable HCC mapping + RAF scoring tests
+
+Phase 1 deliverable: V28 exposure analysis report pipeline complete. Sample report at ./outputs/v28_test_report.html."
+
+Push to origin/main.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHASE 2 PRIMERS ═══ -->
+<section class="section" id="phase2">
+  <div class="phase-sep">
+    <div class="phase-sep-num">2</div>
+    <div>
+      <div class="phase-sep-title">Phase 2 Primer Prompts</div>
+      <div class="phase-sep-sub">Opening prompts for each major Phase 2 component — use when Phase 1 is committed and validated</div>
+    </div>
+    <div class="phase-sep-status status-next">After Phase 1</div>
+  </div>
+
+  <div class="callout violet">
+    <div class="callout-label">Phase 2 Note</div>
+    These are opening orientation prompts for each Phase 2 component. Each will spawn a full development conversation. Use as the first message in a new Claude Code session for that component. Build quality-model and vbc-model first; then scenario-runner (which ties them together); then medical-margin-model last (it consumes the others' outputs).
+  </div>
+
+  <!-- STEP 2.1 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">2.1</div>
+      <div class="step-title">Quality Model — Five-Population eCQM Engine</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">We're beginning Phase 2 of Vantage. Phase 1 (population engine + RAF scoring + V28 report) is complete. Now we're building the quality model.
+
+Read the quality-model SKILL.md at ./skills/quality-model/SKILL.md to understand the current spec. Then read CLAUDE.md for the domain overview.
+
+I want to build a five-population eCQM evaluation engine. The five populations for each measure are: Initial Patient Population (IPP), Denominator, Numerator, Exclusion, and Exception — aligned to NCQA HEDIS specification and the DEQM FHIR IG.
+
+Start by proposing the data model and module structure before writing any code:
+1. What tables (beyond what's in the schema) do we need?
+2. What is the module structure under ./skills/quality-model/scripts/?
+3. What are the 8–10 HEDIS measures we should implement first for maximum Stars impact?
+4. How should the Stars composite scoring work given CMS uses hierarchical clustering for cut-points?
+
+Present your proposal. We'll discuss before building anything.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2.2 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">2.2</div>
+      <div class="step-title">VBC Model — TCOC and MLR</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">We're starting the VBC (Value-Based Care) model for Vantage. This is Phase 2. Read ./skills/vbc-model/SKILL.md.
+
+The VBC model needs to:
+1. Calculate Total Cost of Care (TCOC) for the synthetic population and compare it to CMS benchmark
+2. Model how intervention levers (CDM programs, steerage, pharmacy) change TCOC using the effect weights in reference.effect_weights
+3. Calculate shared savings or downside risk exposure under VBC contracts (MSSP Track 1/2, REACH, MA VBC)
+
+Before building anything, propose:
+- Function signatures for the main TCOC calculation and VBC contract modeling functions
+- How effect_weights will translate lever configs into TCOC changes
+- How confidence intervals will be calculated and surfaced in output
+- What output schema additions (if any) are needed beyond current schema
+
+Review proposal before we write code.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2.3 -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">2.3</div>
+      <div class="step-title">Scenario Runner — Triple-Play Integration</div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">We're ready to build the scenario runner — the component that ties all three revenue domains together into Triple-Play simulations. Read ./skills/scenario-runner/SKILL.md.
+
+The scenario runner receives a lever_configs list (from scenario.lever_configs table), activates each lever, routes effects through risk-model, quality-model, and vbc-model, and produces output.scenario_summary.
+
+Key challenge: for a given lever (e.g., a CDM program), the runner must look up all domain-specific effect weights in reference.effect_weights and apply them consistently, with confidence intervals propagated through to the final summary.
+
+Before building, propose:
+- The orchestration pattern: how does the runner call each domain model?
+- How are confidence intervals aggregated across domains?
+- What does a Triple-Play result look like structurally (the data in scenario_summary)?
+- What's the simplest lever config that exercises all three domains simultaneously?
+
+Propose function signature and return structure, then we'll build.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2.4 — NEW -->
+  <div class="step-block">
+    <div class="step-header">
+      <div class="step-num">2.4</div>
+      <div class="step-title">Medical Margin Model — Integrated P&amp;L</div>
+    </div>
+    <div class="step-desc">The medical-margin-model skill directory already exists in the repo. This is the highest-value differentiator — it integrates all three revenue domains into a unified P&L projection. Build it last in Phase 2 after quality-model, vbc-model, and scenario-runner are validated.</div>
+    <div class="prompt-box">
+      <div class="prompt-label copy">COPY → CLAUDE CODE</div>
+      <div class="prompt-content">
+        <pre><span class="bold-prompt">We're building the Medical Margin Model — the integrated P&L layer for Vantage. The skill directory already exists at ./skills/medical-margin-model/. Read or create its SKILL.md.
+
+Phase 1 and 2 (risk model, quality model, VBC model, scenario runner) are complete. The Medical Margin Model is the final Phase 2 component. It consumes their outputs to produce a unified financial projection.
+
+The Medical Margin Model should produce, per scenario:
+  Net Medical Margin = (RAF Revenue + Quality Bonus Revenue) − Medical Costs − RADV Exposure
+
+Where:
+  - RAF Revenue = population × mean_raf × monthly_capitation × 12, adjusted by risk_revenue_delta
+  - Quality Bonus Revenue = base_quality_bonus × stars_multiplier, adjusted by quality_bonus_delta
+  - Medical Costs = baseline_TCOC × MLR, adjusted by medical_cost_delta
+  - RADV Exposure = estimated audit recovery risk (negative; from radv_exposure_delta)
+  - MLR (Medical Loss Ratio) = Medical Costs / Total Revenue
+
+This model should:
+1. Pull scenario_summary deltas from output.scenario_summary
+2. Accept plan-level actuals as parameters: current_raf, current_stars_rating, current_PMPM, current_monthly_members
+3. Project: baseline margin, scenario margin, delta, ROI ratio (net_value / program_cost), break-even month
+4. Write results back to output.scenario_summary (updating break_even_month and roi_ratio)
+
+Before building, propose the function signature and how plan-level actuals will be parameterized (hardcoded in config? stored in a new table?). Then we'll build and add test_medical_margin_model.py to tests/.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">After Phase 2 is Complete</div>
+    The first demonstrable Triple-Play scenario with integrated Medical Margin Model output is your primary consulting channel artifact. Before doing Phase 3 or 4 work, run the HTN pharmacist program scenario against a 100,000-member population and save the output as a demo scenario. Generate the full HTML report. This becomes the first "real" demonstration deliverable for prospective consulting partners.
+  </div>
+</section>
+
+</body>
+</html>

@@ -35,7 +35,23 @@ This guide walks you through Vantage from zero to a board-ready strategic analys
 You: /init
 ```
 
-Vantage creates a DuckDB database with four schemas and loads CMS-published reference data — HCC crosswalks (V24 + V28), RAF coefficients, HEDIS measures, Stars cut points, evidence-based effect weights, and county-level demographics for every US county.
+```
+Claude: Initializing Vantage database: data/vantage.duckdb
+  Created schema: reference
+  Created schema: population
+  Created schema: scenario
+  Created schema: output
+  Loading CMS reference data...
+    18,510 HCC crosswalk rows
+    2,400 RAF coefficients
+    18 HEDIS measure specs
+    23 effect weights
+    3,143 county demographics
+
+Database initialization complete.
+```
+
+**What just happened:** Vantage created a DuckDB database with four schemas and loaded CMS-published reference data — HCC crosswalks (V24 + V28), RAF coefficients, HEDIS measures, Stars cut points, evidence-based effect weights, and county-level demographics for every US county.
 
 ---
 
@@ -45,7 +61,29 @@ Vantage creates a DuckDB database with four schemas and loads CMS-published refe
 You: /population 10,000 Medicare Advantage members in Los Angeles County
 ```
 
-Vantage generates 10,000 synthetic members calibrated to LA County's actual demographics (from Census ACS) and Medicare Advantage enrollment patterns (from CMS). Each member has age, sex, dual status, HCC conditions, and prior authorization history. Every demographic parameter tracks its source.
+```
+Claude: To model your population, I can use county-level reference data from
+CMS and Census for Los Angeles County (FIPS 06037), or you can provide your
+own plan statistics. Which would you prefer?
+
+You: Use the reference data.
+
+Claude: Generating population...
+  Population ID: la-10k
+  Members: 10,000
+  County: 06037 (Los Angeles, CA)
+  Demographics (source: reference:census_acs):
+    Age distribution: 58% age 65-74, 29% age 75-84, 14% age 85+
+    Male: 49.7%
+    Dual eligible: 43.7% (source: reference:cms_county)
+    SVI: 0.82 (high social vulnerability)
+  HCC conditions assigned: 32,400 (V24 + V28)
+  PA events generated: 11,800
+
+Population ready. Run /simulate to model interventions.
+```
+
+**What just happened:** Vantage generated 10,000 synthetic members calibrated to LA County's actual demographics (from Census ACS) and Medicare Advantage enrollment patterns (from CMS). Each member has age, sex, dual status, HCC conditions, and prior authorization history. Every demographic parameter tracks its source.
 
 ---
 
@@ -55,14 +93,44 @@ Vantage generates 10,000 synthetic members calibrated to LA County's actual demo
 You: /simulate CDM diabetes program with 65% engagement rate, $500K annual investment
 ```
 
-Vantage routes the CDM lever through all four domains simultaneously:
+```
+Claude: Running Triple-Play scenario across all four domains...
 
-- **Risk Adjustment** — HCC specificity improvement → +$1.24M
-- **Quality / Stars** — BP/A1C/adherence improvements → Stars 3.5 → 4.0, quality bonus unlocked → +$2.89M
-- **Medical Cost** — ER reduction, TCOC reduction → -$3.10M savings
-- **RADV Audit Risk** — Documentation improvement → +$280K reduced liability
-- **Net Annual Value** — +$7.51M (range: $3.75M – $11.26M)
-- **ROI** — 15.0x | Break-even: Month 1
+══════════════════════════════════════════════════════════
+  CDM Diabetes Program — Cross-Domain Impact
+══════════════════════════════════════════════════════════
+
+  RISK ADJUSTMENT                              +$1,240,000
+    HCC specificity improvement (diabetes)      +$1.24M
+    Range: $620K – $1.86M (Medium confidence)
+
+  QUALITY / STARS                              +$2,890,000
+    BP control rate improvement (+22 ppt)       Stars 3.5 → 4.0
+    A1C control rate improvement (+14 ppt)      Quality bonus unlocked
+    Statin adherence improvement (+9 ppt)
+    Range: $1.45M – $2.89M (High confidence)
+
+  MEDICAL COST                                 −$3,100,000
+    ER visit reduction (HTN): −35%              −$1.8M
+    TCOC reduction (diabetes): −11%             −$890K
+    TCOC reduction (CHF): −15%                  −$410K
+    Range: −$4.65M – −$1.55M (High confidence)
+
+  RADV AUDIT RISK                              +$280,000
+    Documentation improvement from coding       +$280K reduced liability
+    Range: $140K – $420K (Medium confidence)
+
+  ──────────────────────────────────────────────
+  NET ANNUAL VALUE                             +$7,510,000
+  Confidence range: $3.75M – $11.26M
+  Program cost: $500,000
+  ROI: 15.0x | Break-even: Month 1
+  ──────────────────────════════════════════════
+```
+
+**What just happened:** Vantage routed the CDM lever through all four domains simultaneously. The diabetes program improves HCC coding specificity (risk revenue), BP/A1C/adherence measures (quality bonus), reduces ER visits and TCOC (cost savings), and strengthens documentation (RADV audit resilience). The SDOH modifier adjusted CDM engagement downward for LA County's high SVI (0.82).
+
+**Key insight:** A single CDM program produced $7.5M net value across four domains — most of it from quality bonus ($2.9M) and cost savings ($3.1M), not from risk adjustment.
 
 ---
 
@@ -74,15 +142,37 @@ a PA relaxation strategy (move approval rate from 88% to 95% for ACO
 partners). Then compare all three.
 ```
 
-Vantage normalizes all three scenarios, ranks across 7 dimensions, identifies trade-offs, and synthesizes a weighted recommendation.
+```
+Claude: Running two additional scenarios...
+  ✓ Coding program (phase4-coding)
+  ✓ PA relaxation 88→95% (phase4-pa)
 
-| Dimension | CDM Diabetes | Coding Program | PA Relaxation |
-|-----------|-------------|----------------|---------------|
-| Risk Revenue | +$1.24M (#2) | +$3.80M (#1) | +$680K (#3) |
-| Quality Bonus | +$2.89M (#1) | — (#3) | +$220K (#2) |
-| Medical Cost | −$3.10M (#1) | — (#3) | +$3.4M (#3) |
-| RADV Exposure | +$280K (#2) | +$720K (#1) | +$95K (#3) |
-| **Net Value** | **+$7.51M** (#1) | **+$4.52M** (#2) | **−$2.4M** (#3) |
+Comparing 3 scenarios...
+
+══════════════════════════════════════════════════════════
+  Strategic Portfolio Comparison
+══════════════════════════════════════════════════════════
+
+  Dimension          CDM Diabetes    Coding Program   PA Relaxation
+  ─────────────────  ──────────────  ───────────────  ─────────────
+  Risk Revenue       +$1.24M (#2)   +$3.80M (#1)     +$680K (#3)
+  Quality Bonus      +$2.89M (#1)   —        (#3)     +$220K (#2)
+  Medical Cost       −$3.10M (#1)   —        (#3)     +$3.4M (#3)
+  RADV Exposure      +$280K  (#2)   +$720K   (#1)     +$95K  (#3)
+  Net Value          +$7.51M (#1)   +$4.52M  (#2)     −$2.4M (#3)
+  ROI                15.0x   (#1)   22.6x    (#1)     n/a    (#3)
+
+  RECOMMENDATION: CDM Diabetes Program
+  Best overall weighted score across 4 dimensions: Net Value,
+  Quality Bonus, Medical Cost, RADV Exposure.
+  Note: 2 trade-off(s) identified.
+
+  Trade-offs:
+  • CDM wins on Net Value but Coding wins on Risk Revenue
+  • CDM wins on Quality Bonus but Coding wins on ROI
+```
+
+**What just happened:** Vantage normalized all three scenarios to comparable metrics, ranked each across 7 dimensions, identified where the rankings diverge (trade-offs), and synthesized a weighted recommendation. The CDM program wins overall despite the coding program having higher ROI — because CDM's quality bonus and cost savings contributions dominate the weighted score.
 
 ---
 
@@ -92,22 +182,69 @@ Vantage normalizes all three scenarios, ranks across 7 dimensions, identifies tr
 You: /report HTML dashboard of the comparison, plus a PPTX deck for the board
 ```
 
-Vantage generates two executive-ready outputs:
-- **HTML dashboard** — Side-by-side scenario cards, dimension ranking, weighted score visualization
-- **PPTX deck** — Title slide, recommendation with scenario overview, comparison table
+```
+Claude: Generating reports...
+  ✓ outputs/comparison_report.html (self-contained HTML dashboard)
+  ✓ outputs/comparison_deck.pptx (3-slide board-ready deck)
+
+Reports saved to outputs/ directory.
+```
+
+**What just happened:** Vantage generated two executive-ready outputs:
+- **HTML dashboard** — Side-by-side scenario cards, dimension ranking table with badges, weighted score visualization, recommendation callout. Self-contained with inline CSS, shareable as a single file.
+- **PPTX deck** — Title slide, recommendation with scenario overview, comparison table. Ready for a board presentation.
 
 ---
 
 ## Step 6: Go Deeper
 
+Now that you have a baseline analysis, try these follow-up questions:
+
+### Multi-Year Projection
+```
+You: Project the CDM program forward 3 years with $500K annual investment.
+     Show me the NPV and when we break even.
+```
+
+### Sensitivity Analysis
+```
+You: What happens to the CDM ROI if engagement drops to 40%?
+     What if we're in a rural county instead of LA?
+```
+
+### PA Deep Dive
+```
+You: Show me the PA cascade in detail — how does moving from 88% to 95%
+     approval affect each service category?
+```
+
+### Contract Modeling
+```
+You: Model this CDM program under MSSP Enhanced track with downside risk.
+     What's our shared savings position?
+```
+
+### V28 Exposure
+```
+You: What's our V28 transition exposure? Which HCCs are most at risk?
+```
+
+---
+
+## Quick Reference Card
+
 | Want to... | Say... |
 |-----------|--------|
-| Multi-year view | `Project the CDM program forward 3 years with $500K/year` |
-| Sensitivity | `What happens if engagement drops to 40%?` |
-| PA deep dive | `Show me the PA cascade in detail` |
-| Contract modeling | `Model under MSSP Enhanced with downside risk` |
-| V28 exposure | `What's our V28 transition exposure?` |
-| Change geography | `Regenerate for rural Alabama (Barbour County)` |
+| Start fresh | `/init` |
+| Generate members | `/population 10K in Miami-Dade County` |
+| Run a scenario | `/simulate coding program with 65% engagement` |
+| Model PA change | `/simulate PA relaxation from 85% to 95% for ACO members` |
+| Compare options | `/compare CDM vs coding vs PA relaxation` |
+| Get a report | `/report HTML dashboard` or `/report PPTX deck` |
+| Check session | `/status` |
+| Multi-year view | `Project this over 3 years with $300K annual investment` |
+| Change geography | `Regenerate the population for rural Alabama (Barbour County)` |
+| Adjust engagement | `Rerun with 40% engagement instead of 65%` |
 
 ---
 
@@ -116,7 +253,9 @@ Vantage generates two executive-ready outputs:
 | Resource | Description |
 |----------|-------------|
 | [Conversation Examples](examples/) | 20+ example prompts organized by domain |
-| [Main README](../README.md) | Full architecture and design decisions |
+| [Main README](../README.md) | Full architecture, data model, and testing reference |
+| [Vision Document](../docs/vantage-vision.html) | Product vision and strategic use cases |
+| [Effect Weights](../docs/vantage-effect-weights.html) | Evidence-based methodology behind the numbers |
 
 ---
 

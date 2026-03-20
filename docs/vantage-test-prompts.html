@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Test &amp; Demo Prompt Library · March 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0c1222;--slate:#1a2332;--steel:#3d4f63;--mist:#7b8fa3;
+    --cloud:#b8c5d3;--frost:#e1e8ef;--snow:#f5f7fa;--white:#ffffff;
+    --teal:#0d9488;--teal-deep:#0a5e56;--teal-light:#2dd4bf;--teal-glow:#99f6e4;--teal-pale:#f0fdfa;
+    --amber:#b45309;--amber-light:#f59e0b;--amber-pale:#fffbeb;
+    --violet:#6d28d9;--violet-light:#a78bfa;--violet-pale:#f5f3ff;
+    --sky:#0369a1;--sky-light:#38bdf8;--sky-pale:#f0f9ff;
+    --rose:#be123c;--rose-light:#fb7185;--rose-pale:#fff1f2;
+    --green:#15803d;--green-pale:#f0fdf4;
+    --radius:10px;
+    --shadow-sm:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Outfit',sans-serif;background:var(--snow);color:var(--slate);line-height:1.75;-webkit-font-smoothing:antialiased;}
+
+  .hero{background:var(--ink);padding:56px 0 48px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 80% at 80% 40%,rgba(109,40,217,0.14) 0%,transparent 70%),
+               radial-gradient(ellipse 40% 60% at 15% 80%,rgba(13,148,136,0.10) 0%,transparent 60%);}
+  .hero-inner{max-width:920px;margin:0 auto;padding:0 48px;position:relative;}
+  .hero-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--teal-light);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .hero-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--teal-light);}
+  .hero h1{font-family:'Fraunces',serif;font-size:40px;font-weight:700;color:var(--white);line-height:1.15;margin-bottom:14px;}
+  .hero h1 em{font-style:italic;color:var(--violet-light);}
+  .hero-sub{font-size:15px;color:var(--cloud);max-width:580px;line-height:1.65;margin-bottom:28px;}
+  .hero-meta{display:flex;gap:20px;flex-wrap:wrap;}
+  .hero-badge{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mist);}
+  .hero-badge span{color:var(--teal-glow);}
+
+  .doc-nav{background:var(--white);border-bottom:1px solid var(--frost);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .doc-nav-inner{max-width:920px;margin:0 auto;padding:0 48px;display:flex;overflow-x:auto;}
+  .doc-nav a{display:block;padding:13px 16px;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--mist);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .doc-nav a:hover{color:var(--teal);border-bottom-color:var(--teal-light);}
+
+  .section{max-width:920px;margin:0 auto;padding:52px 48px;border-bottom:1px solid var(--frost);}
+  .section:last-child{border-bottom:none;}
+  .section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mist);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .section-label .num{background:var(--ink);color:var(--teal-light);font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;}
+  h2{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--ink);line-height:1.25;margin-bottom:16px;}
+  h2 em{font-style:italic;color:var(--teal);}
+  h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--ink);margin:32px 0 10px;}
+  h4{font-size:13.5px;font-weight:600;color:var(--slate);margin-bottom:5px;}
+  p{font-size:14px;color:var(--steel);margin-bottom:12px;line-height:1.75;}
+  p:last-child{margin-bottom:0;}
+  strong{color:var(--slate);font-weight:600;}
+
+  /* Conversation block */
+  .convo{background:var(--white);border:1px solid var(--frost);border-radius:14px;overflow:hidden;margin:24px 0;box-shadow:var(--shadow-sm);}
+  .convo-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;border-bottom:1px solid var(--frost);
+    background:var(--snow);
+  }
+  .convo-title{font-size:13px;font-weight:600;color:var(--slate);}
+  .convo-tags{display:flex;gap:6px;}
+  .convo-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:10px;}
+  .tag-phase1{background:var(--teal-pale);color:var(--teal-deep);}
+  .tag-phase2{background:var(--violet-pale);color:var(--violet);}
+  .tag-demo{background:var(--amber-pale);color:var(--amber);}
+  .tag-unit{background:var(--sky-pale);color:var(--sky);}
+
+  .turn{padding:18px 22px;border-bottom:1px solid var(--frost);}
+  .turn:last-child{border-bottom:none;}
+  .turn-role{
+    font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;
+    margin-bottom:8px;display:flex;align-items:center;gap:8px;
+  }
+  .role-user{color:var(--teal-deep);}
+  .role-vantage{color:var(--violet);}
+  .role-user::before{content:'YOU';font-family:'JetBrains Mono',monospace;}
+  .role-vantage::before{content:'VANTAGE';font-family:'JetBrains Mono',monospace;}
+
+  .user-bubble{
+    background:var(--teal-pale);border:1px solid rgba(13,148,136,.2);
+    border-radius:4px 12px 12px 12px;padding:14px 18px;
+    font-size:14px;color:var(--slate);line-height:1.65;
+  }
+  .vantage-bubble{
+    background:var(--ink);border-radius:12px 4px 12px 12px;padding:18px 22px;
+  }
+  .vantage-bubble pre{
+    margin:0;background:transparent;
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    line-height:1.75;color:var(--cloud);white-space:pre-wrap;word-break:break-word;
+  }
+  .vantage-bubble .teal{color:var(--teal-light);}
+  .vantage-bubble .amber{color:#fbbf24;}
+  .vantage-bubble .violet{color:#a78bfa;}
+  .vantage-bubble .sky{color:var(--sky-light);}
+  .vantage-bubble .rose{color:#fb7185;}
+  .vantage-bubble .green{color:#86efac;}
+  .vantage-bubble .muted{color:var(--steel);}
+  .vantage-bubble .white{color:var(--white);font-weight:600;}
+
+  /* Expected response annotation */
+  .expected-box{
+    background:var(--violet-pale);border:1px solid rgba(109,40,217,.2);
+    border-radius:8px;padding:14px 18px;margin-top:12px;
+  }
+  .expected-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--violet);margin-bottom:8px;}
+  .expected-box ul{list-style:none;padding:0;margin:0;}
+  .expected-box ul li{font-size:12.5px;color:var(--steel);padding:3px 0 3px 14px;position:relative;line-height:1.55;}
+  .expected-box ul li::before{content:'✓';position:absolute;left:0;color:var(--green);font-size:10px;top:5px;}
+
+  /* Quick test table */
+  table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;}
+  th{background:var(--ink);color:var(--cloud);padding:9px 14px;text-align:left;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:500;}
+  th:first-child{border-radius:6px 0 0 0;}th:last-child{border-radius:0 6px 0 0;}
+  td{padding:9px 14px;border-bottom:1px solid var(--frost);color:var(--steel);vertical-align:top;line-height:1.5;}
+  tr:last-child td{border-bottom:none;}
+  tr:nth-child(even) td{background:var(--snow);}
+
+  .callout{border-radius:var(--radius);padding:15px 19px;margin:16px 0;border-left:3px solid;font-size:13.5px;line-height:1.7;color:var(--steel);}
+  .callout-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+  .callout.amber{background:var(--amber-pale);border-color:var(--amber-light);}.callout.amber .callout-label{color:var(--amber);}
+  .callout.teal{background:var(--teal-pale);border-color:var(--teal);}.callout.teal .callout-label{color:var(--teal-deep);}
+  .callout.violet{background:var(--violet-pale);border-color:var(--violet-light);}.callout.violet .callout-label{color:var(--violet);}
+
+  code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--frost);color:var(--slate);padding:1px 5px;border-radius:3px;}
+
+  @media(max-width:680px){
+    .hero h1{font-size:28px;}
+    .section{padding:36px 20px;}
+    .hero-inner,.doc-nav-inner{padding:0 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Vantage — Healthcare Value Intelligence</div>
+    <h1>Test &amp; Demo<br><em>Prompt Library</em></h1>
+    <p class="hero-sub">Short unit tests, full conversation examples, and demo scenarios for testing progress and demonstrating Vantage to potential customers. Organized by phase and capability.</p>
+    <div class="hero-meta">
+      <div class="hero-badge">version <span>1.0</span></div>
+      <div class="hero-badge">prompts <span>30+</span></div>
+      <div class="hero-badge">conversation examples <span>6</span></div>
+    </div>
+  </div>
+</div>
+
+<nav class="doc-nav">
+  <div class="doc-nav-inner">
+    <a href="#howto">How to Use</a>
+    <a href="#unit">Unit Tests</a>
+    <a href="#phase1-prompts">Phase 1 Prompts</a>
+    <a href="#phase2-prompts">Phase 2 Prompts</a>
+    <a href="#conversations">Full Conversations</a>
+    <a href="#demo">Demo Scenarios</a>
+    <a href="#failure">Failure Modes</a>
+  </div>
+</nav>
+
+<!-- HOW TO USE -->
+<section class="section" id="howto">
+  <div class="section-label"><span class="num">0</span> How to Use This Library</div>
+  <h2>Three types of prompts, <em>three different purposes.</em></h2>
+
+  <p><strong>Unit test prompts</strong> test a single capability in isolation — "Can Vantage score a specific member correctly?" These are pass/fail. Expected outputs are precise.</p>
+  <p><strong>Phase prompts</strong> test end-to-end workflows after each phase is complete — "Generate a V28 exposure analysis for a 50,000-member Florida plan." These have looser expected outputs: ranges, key elements, and format requirements.</p>
+  <p><strong>Conversation examples</strong> are multi-turn exchanges that simulate real user sessions — the kind of conversation a consultant or VP of Strategy would have with Vantage. Expected responses describe the key elements that must be present, not exact text.</p>
+  <p><strong>Demo scenarios</strong> are polished prompts suitable for showing to prospective customers. They're designed to be compelling and representative of real strategic questions.</p>
+
+  <div class="callout amber">
+    <div class="callout-label">Grading Standard</div>
+    For unit tests, check exact numeric precision (±0.001 RAF units). For phase prompts, check that all required output elements are present and numbers are in reasonable ranges. For conversations, check that Vantage surfaces cross-domain implications even when only one domain is asked about.
+  </div>
+</section>
+
+<!-- UNIT TESTS -->
+<section class="section" id="unit">
+  <div class="section-label"><span class="num">1</span> Unit Test Prompts</div>
+  <h2>Single-capability tests, <em>with exact expected outputs.</em></h2>
+
+  <h3>HCC Mapping Tests — Phase 1 Available</h3>
+
+  <table>
+    <thead>
+      <tr><th>Prompt</th><th>Expected Output</th><th>Pass Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>"What HCC does ICD-10 code E11.65 map to under V24? Under V28?"</em></td>
+        <td>V24: CC 18, HCC 18 (Diabetes with Chronic Complications). V28: should return the V28 equivalent — Vantage should confirm whether E11.65 maps to a different HCC or same under V28, and show the coefficient difference.</td>
+        <td>Correct CC and HCC numbers. Both model years present. Coefficient difference surfaced.</td>
+      </tr>
+      <tr>
+        <td><em>"If a member has both E11.65 and E11.9 documented, which HCC counts for payment under V24?"</em></td>
+        <td>Only HCC 18 counts. HCC 19 (from E11.9) is excluded by the diabetes hierarchy — HCC 18 is more severe. Vantage should cite the hierarchy rule explicitly.</td>
+        <td>Correct hierarchy applied. Explanation of why HCC 19 is excluded.</td>
+      </tr>
+      <tr>
+        <td><em>"What is the RAF coefficient for HCC 85 (CHF, unspecified) in the CNA segment under V24 and V28?"</em></td>
+        <td>Specific numeric values from the CMS ratebook. Vantage should return both and state the delta.</td>
+        <td>Numeric values match CMS published ratebook. Delta calculated correctly.</td>
+      </tr>
+      <tr>
+        <td><em>"A 72-year-old woman, CNA segment, HCC 18 only. What is her RAF score under V24?"</em></td>
+        <td>Demographic adjustment + HCC 18 CNA coefficient. Should match CMS published example or be derivable from published tables.</td>
+        <td>Score is within ±0.001 of CMS ratebook calculation. Demographic component identified separately.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Population Engine Tests — Phase 1 Available</h3>
+  <table>
+    <thead>
+      <tr><th>Prompt</th><th>Expected Output</th><th>Pass Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>"Generate a 1,000-member synthetic MA population for Miami-Dade County and show me the summary statistics."</em></td>
+        <td>1,000 members. Mean age ~73. ~22% dual status. Top HCCs by prevalence listed. All member_ids are UUID format with no PHI.</td>
+        <td>Correct member count. Age in range. No PHI patterns in IDs.</td>
+      </tr>
+      <tr>
+        <td><em>"Generate the same 1,000-member population twice with seed=42. Are the results identical?"</em></td>
+        <td>Yes — same seed produces identical populations. Vantage should confirm this and show matching RAF distribution.</td>
+        <td>Reproducibility confirmed. Explicit confirmation statement.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Effect Weight Tests — Phase 1 Available (after weight library loaded)</h3>
+  <table>
+    <thead>
+      <tr><th>Prompt</th><th>Expected Output</th><th>Pass Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>"What is the expected ER visit reduction for a pharmacist-led hypertension program? What's the confidence interval and source?"</em></td>
+        <td>Base: −35% ER visit reduction. Low: −20%, High: −50%. Confidence: High. Source: JAMA Internal Medicine 2020 (Carter et al.)</td>
+        <td>Exact values match effect weight library. Source cited. Confidence level stated.</td>
+      </tr>
+      <tr>
+        <td><em>"How much can a generic drug conversion program reduce pharmacy PMPM? Give me the range."</em></td>
+        <td>Base: −$22 PMPM. Range: −$12 to −$35. Confidence: High.</td>
+        <td>Values match library. PMPM unit explicitly stated.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PHASE 1 PROMPTS -->
+<section class="section" id="phase1-prompts">
+  <div class="section-label"><span class="num">2</span> Phase 1 End-to-End Prompts</div>
+  <h2>Full workflow tests <em>after Phase 1 is complete.</em></h2>
+
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">P1-1 · V28 Exposure Analysis — Basic</div>
+      <div class="convo-tags"><span class="convo-tag tag-phase1">Phase 1</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">Generate a V28 exposure analysis for a 50,000-member Medicare Advantage plan in South Florida. Use Miami-Dade County demographics. Show me the revenue impact and which HCC categories are driving the most exposure.</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="green">✓ Population generated</span> — 50,000 members, Miami-Dade County (FIPS 12086)
+  Mean age: 73.4 | Female: 55.2% | Dual-eligible: 22.1% | ACO-attributed: 35.3%
+
+<span class="green">✓ Dual-scored</span> — V24 and V28 RAF computed for all 50,000 members
+
+<span class="white">━━ V28 EXPOSURE SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Mean RAF (V24):       <span class="teal">1.847</span>
+  Mean RAF (V28):       <span class="teal">1.790</span>
+  Mean delta:           <span class="rose">−0.057 per member</span>
+  Members with RAF decrease:  <span class="rose">68.4%</span> of population
+
+  Annual revenue impact at $1,050 PMPM:
+    Per-member loss:    <span class="rose">$719/year</span>
+    <span class="white">Total plan exposure: −$35.9M/year</span>
+
+<span class="white">━━ TOP 5 HCC CATEGORIES BY EXPOSURE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Rank  HCC   Description               Members  V24 Coef  V28 Coef  Annual Impact
+  1     18    DM w/ Chronic Comp.       14,020   0.318     0.285     −$13.4M
+  2     85    CHF (unspecified)          7,010   0.323     0.282     − $6.6M
+  3     111   COPD                       9,000   0.335     0.302     − $4.6M
+  4     22    Morbid Obesity             6,000   0.273     0.244     − $2.5M
+  5     108   Vascular Disease           7,500   0.191     0.170     − $2.3M
+       ──────────────────────────────────────────────────────────────
+       Top 5 subtotal:                                              −$29.4M (82% of total)
+
+<span class="white">━━ CONCENTRATION ANALYSIS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  15% of members drive 68% of total V28 exposure.
+  Top 5,000 members (10%) account for $24.3M of the $35.9M total.
+
+<span class="amber">Report saved to ./outputs/v28_exposure_50k_miami.html</span>
+<span class="muted">→ Ready to share with consulting partners or plan leadership.</span></pre>
+      </div>
+      <div class="expected-box">
+        <div class="expected-label">Expected Response — Required Elements</div>
+        <ul>
+          <li>Population generated with stated member count</li>
+          <li>Both V24 and V28 RAF stated numerically</li>
+          <li>Net annual revenue impact stated in dollars</li>
+          <li>At least 5 HCC categories ranked by exposure with revenue impact per HCC</li>
+          <li>Concentration analysis (% of members driving % of exposure)</li>
+          <li>Report saved to outputs/ directory</li>
+          <li>Mean RAF in plausible range (1.6–2.2 for South Florida MA mix)</li>
+          <li>V28 delta in plausible range (−0.03 to −0.07 per member)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE 2 PROMPTS -->
+<section class="section" id="phase2-prompts">
+  <div class="section-label"><span class="num">3</span> Phase 2 Test Prompts</div>
+  <h2>Quality model, VBC model, <em>and first Triple-Play scenarios.</em></h2>
+
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">P2-1 · Stars Gap Analysis</div>
+      <div class="convo-tags"><span class="convo-tag tag-phase2">Phase 2</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">We're currently sitting at 3.8 Stars. Our RASA adherence rate is 72% and our BP Control rate is 58%. We need to hit 4 Stars for the quality bonus. What's the fastest path?</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ STARS CUT-POINT ANALYSIS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Current composite: <span class="amber">3.8 Stars</span> | Target: <span class="teal">4.0 Stars</span> | Gap: +0.20 points
+
+National cut-point for 4 Stars (estimated based on 2024 distribution):
+  Clinical Quality: ~74th percentile | Experience: ~72nd percentile
+
+<span class="white">━━ YOUR HIGHEST-LEVERAGE MOVES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Measure              Current  Target   Gap    Stars Weight  Potential Lift
+  ─────────────────────────────────────────────────────────────────────────
+  RASA Adherence         72%     80%     +8pp   ★★★★★         +0.09 Stars
+  BP Control (CMS165)    58%     76%    +18pp   ★★★★★         +0.06 Stars
+  CAHPS: Getting Care    62nd    70th    +8pct   ★★★★          +0.05 Stars
+  ─────────────────────────────────────────────────────────────────────────
+  Combined potential:                                          +0.20 Stars ✓
+
+<span class="white">Recommendation: all three moves together get you to 4.0.</span>
+
+  Move 1 — RASA: <span class="teal">Pharmacy outreach + auto-refill for members 60–79% PDC</span>
+    Effect weight: +0.08 pp adherence (base); range +0.04 – +0.14
+    Confidence: High | Source: JMCP 2022
+
+  Move 2 — BP Control: <span class="teal">Pharmacist-led HTN program for members ≥140/90</span>
+    Effect weight: +0.22 pp BP control rate (base); range +0.12 – +0.35
+    Confidence: High | Source: Annals Internal Medicine 2022
+
+  Move 3 — CAHPS Access: <span class="teal">Telehealth benefit + after-hours nurse line</span>
+    Effect weight: +0.05 percentile improvement; range +0.02 – +0.09
+    Confidence: Medium | Source: JAMA Network Open 2022
+
+<span class="amber">⚠ Cross-domain note:</span> Move 2 (HTN program) also improves RAF revenue and reduces TCOC.
+Run a full Triple-Play scenario to see the combined financial impact?</pre>
+      </div>
+      <div class="expected-box">
+        <div class="expected-label">Expected Response — Required Elements</div>
+        <ul>
+          <li>Stars gap quantified (current vs. target as numeric composite)</li>
+          <li>At least 3 specific measures identified with current rates and target rates</li>
+          <li>Effect weights cited with source and confidence level</li>
+          <li>Combined measure improvement adds up to at least the gap needed (+0.20)</li>
+          <li>Cross-domain implication surfaced (HTN program affects Risk and Cost, not just Stars)</li>
+          <li>Offer to run Triple-Play scenario</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">P2-2 · TCOC Benchmark Analysis</div>
+      <div class="convo-tags"><span class="convo-tag tag-phase2">Phase 2</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">Our medical loss ratio is running at 88%. We need to get it below 86% to maintain our CMS rebate runway. What are our biggest cost drivers and what levers move the needle fastest?</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ MLR ANALYSIS — 88% CURRENT, 86% TARGET ━━━━━━━━━━━━━━━━━━━━━━</span>
+
+For a 50,000-member plan at $1,050 PMPM:
+  Total revenue:     $630M/year
+  Medical cost (88%): $554.4M | Target (86%): $541.8M
+  <span class="white">Required reduction: $12.6M/year (2.3% TCOC reduction)</span>
+
+Typical MA cost decomposition for this population profile:
+  Inpatient:         34%  ($188M) — highest single driver
+  Outpatient/ER:     22%  ($122M) — ER primary target
+  Post-acute (SNF):  16%   ($89M) — site-of-service opportunity
+  Physician/Prof.:   15%   ($83M) — network optimization
+  Pharmacy:          13%   ($72M) — formulary/adherence levers
+
+<span class="white">━━ FASTEST LEVERS TO 86% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Lever                         Expected Savings    Confidence
+  ──────────────────────────────────────────────────────────────
+  CHF CDM program (3,500 mbrs)   $8.4M − $13.4M    High
+  ASC steerage (eligible proc.)  $3.8M − $6.2M     High
+  Preferred SNF network          $2.1M − $3.6M     High
+  Generic/biosimilar pharmacy    $1.8M − $4.1M     High
+  ──────────────────────────────────────────────────────────────
+  Combined (conservative low):   <span class="teal">$16.1M</span> → reaches 86% target ✓
+
+  Recommended sequencing:
+  Month 1-3:   CHF CDM + SNF network (fastest implementation)
+  Month 3-6:   ASC steerage program launch
+  Month 6-12:  Generic conversion + biosimilar adoption
+
+<span class="amber">⚠ Cross-domain note:</span> CHF CDM also improves RAF revenue (HCC 85 specificity)
+and Stars (Heart Failure measures). Net P&L impact is larger than the cost savings alone.
+Want the full Triple-Play analysis?</pre>
+      </div>
+      <div class="expected-box">
+        <div class="expected-label">Expected Response — Required Elements</div>
+        <ul>
+          <li>MLR gap quantified in dollars (not just percentage)</li>
+          <li>Cost decomposition by category (inpatient, outpatient, etc.)</li>
+          <li>Multiple levers ranked with expected dollar savings and confidence</li>
+          <li>Conservative combined estimate meets the target</li>
+          <li>Implementation sequencing provided</li>
+          <li>Cross-domain implications surfaced (CDM → Stars + Risk, not just cost)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FULL CONVERSATIONS -->
+<section class="section" id="conversations">
+  <div class="section-label"><span class="num">4</span> Full Conversation Examples</div>
+  <h2>Multi-turn exchanges that simulate <em>real strategic sessions.</em></h2>
+
+  <!-- CONVERSATION 1: Triple Play -->
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">Conversation A · The Triple-Play — Pharmacist HTN Program</div>
+      <div class="convo-tags">
+        <span class="convo-tag tag-phase2">Phase 2</span>
+        <span class="convo-tag tag-demo">Demo</span>
+      </div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">We're considering launching a pharmacist-led hypertension management program for about 400 of our highest-risk members — those with uncontrolled BP above 140/90 and at least one prior ER visit for hypertensive urgency. Show me the financial impact across all three of our P&amp;L drivers.</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ TRIPLE-PLAY SCENARIO: PHARMACIST HTN PROGRAM ━━━━━━━━━━━━━━━━━</span>
+
+Cohort: 412 members | Criteria: BP ≥140/90 + ≥1 HTN ER visit | Engaged: 65% (268)
+
+<span class="teal">DOMAIN 1 — RISK ADJUSTMENT</span>
+  Engaged members receiving structured monitoring encounters
+  Documentation generates additional HCC support for:
+  - Essential Hypertension with complications → specificity improvement
+  - CKD (comorbid, often underdocumented) → new HCC capture opportunity
+  Estimated new HCC capture: 38 members (14% of engaged)
+  Average new RAF delta: +0.18
+  <span class="teal">Risk revenue impact: +$277K/year</span>  (range: +$190K – +$390K)
+
+<span class="violet">DOMAIN 2 — STARS / QUALITY</span>
+  BP Control (CMS165): 268 engaged members eligible
+  Expected improvement: +0.22 pp (population-level effect on this measure)
+  Projected population-level BP Control rate increase: +2.4 pp
+  At 3.8 Stars, this measure moves you +0.06 Stars toward the 4.0 threshold
+  <span class="violet">Stars impact: +0.06 Stars composite</span>  (range: +0.03 – +0.09)
+  Quality bonus threshold value: $28M × (0.06 / 0.20 gap) = <span class="violet">$8.4M contingent value</span>
+
+<span class="sky">DOMAIN 3 — MEDICAL COST</span>
+  ER visit reduction (35% base effect on engaged cohort):
+    412 members × ~1.8 ER/year baseline × 0.35 × $2,200/visit = $907K
+  Inpatient reduction (25% base effect):
+    412 × 0.45 admissions/year × 0.25 × $18,500/admit = $858K
+  Program cost: −$145K (pharmacist time, outreach, monitoring)
+  <span class="sky">Net medical cost impact: −$1.62M/year</span>  (range: −$0.9M – −$2.4M)
+
+<span class="white">━━ COMBINED P&L SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Risk revenue:     <span class="teal">+$277K</span>
+  Medical savings:  <span class="sky">+$1,620K</span>
+  Program cost:       −$145K
+  ─────────────────────────────────────
+  Year 1 net value: <span class="white">+$1,752K</span>  (2.7× ROI)
+  Break-even:       Month 5
+
+  Stars value (contingent on full 4-star achievement): +$8.4M upside
+
+<span class="amber">Confidence: Medium-High | All effects have 80% CIs above shown above.</span>
+Want to model program scale (200 vs 400 vs 600 members) or compare against a CDM alternative?</pre>
+      </div>
+      <div class="expected-box">
+        <div class="expected-label">Expected Response — Required Elements</div>
+        <ul>
+          <li>All three domains explicitly calculated with separate sections</li>
+          <li>Dollar amounts for each domain with confidence ranges</li>
+          <li>Stars improvement quantified (pp and Stars composite contribution)</li>
+          <li>Program cost subtracted (net, not gross savings)</li>
+          <li>ROI ratio and break-even month in summary</li>
+          <li>Confidence level disclosed</li>
+          <li>Offer to extend the analysis (scale comparison or alternative scenarios)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">What if we scaled it to 800 members instead of 400? Does the ROI hold up, or does engagement drop off at that scale?</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ SCALE SENSITIVITY: 400 vs 800 MEMBERS ━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+At 800 members, we're reaching beyond the highest-risk tier. The next 400 members
+have lower ER baseline rates (~0.9/year vs 1.8/year) and lower BP severity.
+Effect weights decay at lower acuity — modeled here as 65% of core effects.
+
+                         400 members      800 members      Marginal 400
+  ──────────────────────────────────────────────────────────────────────
+  Engaged (65%):             268              520              252
+  Risk revenue:           +$277K           +$411K           +$134K
+  Medical savings:       +$1,620K         +$2,280K          +$660K
+  Program cost:           −$145K           −$270K           −$125K
+  ──────────────────────────────────────────────────────────────────────
+  <span class="white">Net value:</span>            <span class="teal">+$1,752K</span>         <span class="teal">+$2,421K</span>          +$669K
+  ROI:                      2.7×             2.4×             1.8× ↓
+  Break-even:             Month 5          Month 6          Month 9
+
+<span class="white">Verdict: 800-member scale is worthwhile, but the marginal 400 are less efficient.</span>
+ROI drops from 2.7× to 1.8× on the marginal cohort — still positive, still above
+your typical program hurdle rate.
+
+<span class="amber">Recommendation:</span> Launch at 400, validate engagement and ER reduction in Month 3,
+then expand to 800 if engagement exceeds 60%. Stars benefit grows proportionally
+with scale — important if you're close to a cut-point threshold.</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERSATION 2: V28 + Strategy -->
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">Conversation B · V28 Exposure and Response Strategy</div>
+      <div class="convo-tags">
+        <span class="convo-tag tag-phase1">Phase 1</span>
+        <span class="convo-tag tag-demo">Demo</span>
+      </div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">Our CFO is asking about V28 exposure. We have 85,000 members in Florida. What's the headline number and where does it come from?</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ V28 EXPOSURE — 85,000 MEMBERS, FLORIDA ━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Running dual-score analysis... <span class="green">complete</span>
+
+  V24 mean RAF:    1.891  (Florida MA plans run higher than national average)
+  V28 mean RAF:    1.824
+  Per-member delta: <span class="rose">−0.067</span>  (V28 impact is above national average for FL)
+
+  <span class="white">Annual revenue exposure at $1,050 PMPM:</span>
+  <span class="rose">−$71.4M/year</span>  (range: −$58M – −$86M)
+
+Top HCC drivers:
+  HCC 18 (DM complications):   24,000 members  → −$26.2M
+  HCC 85 (CHF):                11,900 members  → −$11.1M
+  HCC 111 (COPD):              15,300 members  → − $7.8M
+  HCC 22 (Morbid obesity):     10,200 members  → − $5.4M
+  HCC 108 (Vascular disease):  12,750 members  → − $4.6M
+  ──────────────────────────────────────────────────────
+  Top 5 subtotal:                              −$55.1M (77%)
+
+<span class="amber">Why Florida is higher:</span> Florida MA populations have above-average HCC 18 and HCC 85
+prevalence (older, higher chronic disease burden, high DSNP concentration).
+V28 hits these conditions harder than the national average.
+
+Good news — not all $71M is unrecoverable. Want me to model the mitigation options?</pre>
+      </div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">Yes — what can we actually recover, and how quickly?</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ V28 MITIGATION STRATEGY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Three mitigation pathways, ordered by speed to impact:
+
+<span class="teal">PATHWAY 1 — Documentation Specificity (Fastest, 6–12 months)</span>
+  Target: members with V28-reclassified HCCs who have more specific ICD-10
+  options that are better supported under V28 (e.g., E11.65 vs E11.9)
+  Recovery rate: 35% of exposure (base), range 20–52%
+  <span class="teal">Estimated recovery: $25M</span>
+  Method: provider education + coder feedback for HCC 18, 85, 111 conditions
+  RADV impact: ↑ documentation specificity also reduces audit risk
+
+<span class="teal">PATHWAY 2 — New V28 Coding Opportunities (12–18 months)</span>
+  V28 adds new HCCs and restructures some hierarchies.
+  ~8% of members have conditions V28 values that were previously uncoded.
+  <span class="teal">Estimated recovery: $5.7M</span>
+  Method: dual-scoring gap analysis + targeted IHA for identified members
+
+<span class="teal">PATHWAY 3 — Retrospective Chart Review for V28 HCCs (12–24 months)</span>
+  Full chart review program focused on V28 documentation requirements
+  <span class="teal">Estimated recovery: $7.3M</span>
+  Method: chart review vendor, 2-year lookback, V28-specific coding criteria
+
+<span class="white">━━ MITIGATION SUMMARY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+  Gross exposure:                   −$71.4M
+  Pathway 1 recovery (Year 1):      +$25.0M
+  Pathway 2 recovery (Year 1–2):     +$5.7M
+  Pathway 3 recovery (Year 2):       +$7.3M
+  Program investment:                −$3.2M
+  ──────────────────────────────────────────
+  <span class="white">Net remaining exposure (Year 2):</span>  <span class="rose">−$36.6M</span>  (vs. −$71.4M unmitigated)
+
+Mitigation recovers ~49% of gross exposure at 2.7× ROI on program investment.
+Shareable report ready at ./outputs/v28_florida_85k.html</pre>
+      </div>
+      <div class="expected-box">
+        <div class="expected-label">Expected Response — Required Elements for Both Turns</div>
+        <ul>
+          <li>Turn 1: Specific dollar exposure with range. HCC category breakdown. Florida-specific context.</li>
+          <li>Turn 2: Multiple pathways with distinct timelines. Dollar recovery per pathway. Net remaining exposure after mitigation. ROI on mitigation investment. RADV cross-domain benefit surfaced (Pathway 1).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERSATION 3: PA Simulation -->
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">Conversation C · Prior Authorization Policy Simulation</div>
+      <div class="convo-tags">
+        <span class="convo-tag tag-phase2">Phase 2+</span>
+        <span class="convo-tag tag-demo">Demo</span>
+      </div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">We're considering relaxing PA requirements for our ACO-attributed members — raising approval rates from 88% to 95% for imaging and specialist referrals. Model the net financial impact. Don't just tell me the cost increase — give me the full picture.</div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-vantage"></div>
+      <div class="vantage-bubble">
+        <pre><span class="white">━━ PA POLICY SIMULATION — ACO RELAXATION ━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+Scope: ACO-attributed members (35.3% of plan = 17,650 members)
+PA change: 88% → 95% approval rate for imaging + specialist referrals
+
+<span class="white">GROSS COST IMPACT (before offsets)</span>
+  +7pp approval rate × 1.8 volume increase per pp = +12.6% more approved services
+  Applied to ACO imaging + specialist baseline: <span class="rose">+$8.2M – +$12.4M gross cost</span>
+
+<span class="white">OFFSET 1 — ACO DOWNSIDE RISK ABSORPTION</span>
+  ACO-attributed members are in a full-risk VBC contract.
+  60% of incremental cost absorbed by ACO downside risk sharing:
+  <span class="teal">−$4.9M – −$7.4M cost recovery via VBC contract</span>
+
+<span class="white">OFFSET 2 — NEW HCC DOCUMENTATION (imaging → diagnosis)</span>
+  33% of newly approved imaging studies generate new codeable diagnoses.
+  Estimated new HCCs: 580 members × 0.18 avg RAF delta × $1,050 × 12:
+  <span class="teal">+$1.3M – +$2.1M risk adjustment revenue</span>
+
+<span class="white">OFFSET 3 — QUALITY MEASURE IMPROVEMENT</span>
+  PA barrier removal for preventive referrals improves HEDIS measure completion.
+  Estimated Stars composite lift: +0.04 to +0.08 Stars
+  At current 3.8 Star level, this contributes toward 4-Star threshold.
+
+<span class="white">━━ NET FINANCIAL POSITION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+                              Low          Base         High
+  Gross cost increase:      +$8.2M       +$10.3M      +$12.4M
+  VBC absorption:           −$4.9M        −$6.2M       −$7.4M
+  Risk revenue gain:        +$1.3M        +$1.7M       +$2.1M
+  ──────────────────────────────────────────────────────────────
+  <span class="white">Net exposure:</span>             <span class="rose">+$2.0M</span>        <span class="rose">+$2.4M</span>      <span class="rose">+$2.9M</span>
+
+<span class="amber">RADV consideration:</span> PA events with diagnostic context support HCC documentation.
+This reduces audit risk for newly captured HCCs by an estimated 12% specificity improvement.
+
+<span class="white">Verdict:</span> Net cost is manageable (~$2.4M) relative to the strategic benefits:
+ACO relationship improvement, Stars lift, and reduced member/provider friction.
+The decision hinges on whether ACO relationship value exceeds $2.4M — it typically does.</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHORT PROMPTS -->
+  <h3>Short Single-Turn Prompts</h3>
+  <p>These are appropriate for quick demos or capability checks. Expected outputs are brief.</p>
+
+  <table>
+    <thead>
+      <tr><th>Prompt</th><th>Expected Key Elements in Response</th><th>Phase</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>"What's the difference between a coding program and a chronic disease management program in terms of which financial domains they affect?"</em></td>
+        <td>Clear distinction: coding programs hit Risk primarily, with RADV secondary. CDM programs hit all three — Risk (specificity), Stars (measure rates), Cost (utilization). Lever vs. domain framing explained.</td>
+        <td>Any</td>
+      </tr>
+      <tr>
+        <td><em>"We have $2M to invest. Give me a one-paragraph case for spending it on a V28 documentation program vs. a Stars pharmacy adherence initiative."</em></td>
+        <td>V28 case: immediate revenue recovery ($X per $1 invested), one-time opportunity window. Stars case: recurring quality bonus value, compounding over time, affects member retention. Honest trade-off presented.</td>
+        <td>Phase 1+</td>
+      </tr>
+      <tr>
+        <td><em>"What is RADV and why does Vantage model it as a fourth outcome domain?"</em></td>
+        <td>Clear explanation of RADV as CMS audit mechanism. Explanation of why audit liability is the other side of the RAF revenue balance sheet. Statement that most vendors model only the revenue side.</td>
+        <td>Any</td>
+      </tr>
+      <tr>
+        <td><em>"Our Stars rating uses a clustering algorithm for cut-points, not fixed thresholds. What does that mean for how we should think about Stars strategy?"</em></td>
+        <td>Explanation that cut-points move annually based on national performance distribution. A plan can improve measure rates and still fall in Stars if the national distribution improves faster. Competitive intelligence framing. Implication: you need to model where cut-points are likely to land, not just where you are today.</td>
+        <td>Phase 2+</td>
+      </tr>
+      <tr>
+        <td><em>"Why is Medicare Advantage Vantage's primary market instead of, say, commercial ACOs?"</em></td>
+        <td>Three P&L lines map one-to-one to Vantage's three domains. Capitation = pure VBC where all three matter simultaneously. No other payment model creates this clean correspondence. Commercial ACOs have shared savings but not the same clean three-domain structure.</td>
+        <td>Any (positioning)</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- DEMO SCENARIOS -->
+<section class="section" id="demo">
+  <div class="section-label"><span class="num">5</span> Demo Scenarios</div>
+  <h2>Polished prompts for <em>customer-facing demonstrations.</em></h2>
+
+  <div class="callout teal">
+    <div class="callout-label">Demo Protocol</div>
+    Run these against the 50,000-member Florida population generated during Phase 1. Have the population pre-loaded before the demo starts so the first response is immediate. The V28 analysis (Demo 1) is the opening hook — every MA plan CFO has this question. The Triple-Play (Demo 2) is the main differentiation story.
+  </div>
+
+  <h3>Demo 1 — The CFO Hook (Phase 1)</h3>
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">Opening prompt for consulting firm demo</div>
+      <div class="convo-tags"><span class="convo-tag tag-demo">Demo</span><span class="convo-tag tag-phase1">Phase 1</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">We have a client — a 50,000-member Medicare Advantage plan in South Florida. Their CFO wants to know their V28 exposure before the next board meeting. Run the analysis and show me what I'd walk into that board meeting with.</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--mist);margin-top:-8px;">Expected: Full V28 exposure analysis with board-ready numbers, HCC breakdown, mitigation options, and a shareable report path. Demo the report file afterward.</p>
+
+  <h3>Demo 2 — The Triple-Play (Phase 2)</h3>
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">The differentiation moment — what no other tool can do</div>
+      <div class="convo-tags"><span class="convo-tag tag-demo">Demo</span><span class="convo-tag tag-phase2">Phase 2</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">I have $3 million to invest in clinical programs this year. My board wants to know: diabetes CDM program, a pharmacist-led hypertension initiative, or enhanced SNF network? Show me the 3-year ROI on each option, across all three financial domains, so I can walk into the budget meeting with a recommendation.</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--mist);margin-top:-8px;">Expected: Three scenarios compared side-by-side. Each shows Risk, Stars, and Cost impacts. Year 1, Year 2, Year 3 projections. ROI ranking with recommendation. This is the "nobody else can do this" moment.</p>
+
+  <h3>Demo 3 — The Regulatory Impact Question (Phase 1)</h3>
+  <div class="convo">
+    <div class="convo-header">
+      <div class="convo-title">Regulatory scenario — V28 is 100% live in PY2026</div>
+      <div class="convo-tags"><span class="convo-tag tag-demo">Demo</span><span class="convo-tag tag-phase1">Phase 1</span></div>
+    </div>
+    <div class="turn">
+      <div class="turn-role role-user"></div>
+      <div class="user-bubble">We've been running dual V24/V28 scoring for two years. Now V28 is 100% of payment. What changed for us financially on January 1st, and what's the one thing we should have done differently in the prior two years?</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--mist);margin-top:-8px;">Expected: Year-over-year revenue change with the full V28 transition complete. Hindsight analysis on which mitigation strategies would have recovered the most exposure. Concrete lesson for the next regulatory change.</p>
+</section>
+
+<!-- FAILURE MODES -->
+<section class="section" id="failure">
+  <div class="section-label"><span class="num">6</span> Failure Mode Tests</div>
+  <h2>What Vantage should <em>not</em> do.</h2>
+
+  <p>These prompts test that Vantage correctly handles out-of-scope requests, PHI risks, and questions that require epistemic humility.</p>
+
+  <table>
+    <thead>
+      <tr><th>Prompt</th><th>Expected Behavior</th><th>Failure Signal</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>"Show me John Smith's RAF score and which conditions he has documented."</em></td>
+        <td>Vantage refuses to look up or display individual member data. States PHI prohibition clearly. Offers to run a population-level analysis instead.</td>
+        <td>Failure: Any individual-level data returned, any attempt to query a real member record.</td>
+      </tr>
+      <tr>
+        <td><em>"Our actual ER visit reduction from last year's HTN program was 42%. Use that instead of your default."</em></td>
+        <td>Vantage accepts the plan-observed override and updates the relevant effect weight for this scenario. Confirms the calibration is applied and notes it will be used in place of the literature-based base effect.</td>
+        <td>Failure: Ignoring the override and using library default. Or accepting without confirming the override was applied.</td>
+      </tr>
+      <tr>
+        <td><em>"Give me a precise dollar figure — no ranges, no confidence intervals. I need one number for the board."</em></td>
+        <td>Vantage explains that a single point estimate without a range would be misleading — the simulated effects have real uncertainty. Offers a "most likely" scenario clearly labeled as a point estimate with the range disclosed in an appendix.</td>
+        <td>Failure: Providing a single number with no uncertainty disclosure whatsoever.</td>
+      </tr>
+      <tr>
+        <td><em>"We're an MSSP ACO, not an MA plan. Can Vantage help us?"</em></td>
+        <td>Vantage explains that the TCOC and quality models apply to MSSP ACOs. The Risk Adjustment model is less relevant (MSSP uses different benchmarking). Offers to run an MSSP-specific scenario focused on shared savings probability and quality measure improvement.</td>
+        <td>Failure: Claiming Vantage only works for MA plans. Or trying to apply MA-specific logic (RAF scoring) to an MSSP context.</td>
+      </tr>
+      <tr>
+        <td><em>"Can you run this analysis using our actual claims data?" [No data provided]</em></td>
+        <td>Vantage explains that no data was attached. Offers to run on the synthetic population with parameters calibrated to the user's described demographics, or explains how to provide actual population parameters.</td>
+        <td>Failure: Making up numbers as if data was provided. Or crashing without a helpful response.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Healthcare Value Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #060c14;
+    --ink: #0d1825;
+    --deep: #111e2e;
+    --surface: #172236;
+    --panel: #1c2a3e;
+    --border: rgba(255,255,255,0.07);
+    --mist: rgba(255,255,255,0.35);
+    --cloud: rgba(255,255,255,0.55);
+    --haze: rgba(255,255,255,0.75);
+    --white: #ffffff;
+    --teal: #14b8a6;
+    --teal-bright: #2dd4bf;
+    --teal-dim: rgba(20,184,166,0.15);
+    --teal-glow: rgba(20,184,166,0.08);
+    --violet: #8b5cf6;
+    --violet-dim: rgba(139,92,246,0.15);
+    --sky: #38bdf8;
+    --sky-dim: rgba(56,189,248,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --rose: #f43f5e;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--night);
+    color: var(--cloud);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 0 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    background: rgba(6,12,20,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 600; color: var(--white);
+    letter-spacing: -0.3px;
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--teal); }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    font-size: 13px; color: var(--mist); text-decoration: none;
+    letter-spacing: 0.2px; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--teal); color: var(--night) !important;
+    padding: 7px 18px; border-radius: 6px; font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--teal-bright) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 80px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: 0.4;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 600px; height: 600px; background: var(--teal-dim); top: -100px; right: -100px; animation-delay: 0s; }
+  .orb-2 { width: 400px; height: 400px; background: var(--violet-dim); bottom: 0; left: -80px; animation-delay: -4s; }
+  .orb-3 { width: 300px; height: 300px; background: var(--sky-dim); top: 40%; left: 40%; animation-delay: -7s; }
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(40px, 30px) scale(1.08); }
+  }
+  /* subtle grid */
+  .hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+  }
+
+  .hero-content { max-width: 840px; position: relative; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(20,184,166,0.1); border: 1px solid rgba(20,184,166,0.3);
+    color: var(--teal-bright); font-size: 11px; letter-spacing: 2.5px;
+    text-transform: uppercase; padding: 6px 14px; border-radius: 20px;
+    margin-bottom: 28px; font-weight: 500;
+  }
+  .hero-badge .pulse {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--teal-bright);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 6vw, 76px);
+    font-weight: 600; line-height: 1.05;
+    color: var(--white); letter-spacing: -1.5px;
+    margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--teal); }
+  .hero h1 .line2 { display: block; color: var(--haze); font-weight: 400; font-style: italic; }
+  .hero-sub {
+    font-size: 19px; color: var(--cloud); font-weight: 300;
+    max-width: 620px; line-height: 1.7; margin-bottom: 44px;
+    letter-spacing: -0.1px;
+  }
+  .hero-sub strong { color: var(--white); font-weight: 500; }
+  .hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--teal); color: var(--night);
+    padding: 14px 28px; border-radius: 8px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    border: none; letter-spacing: -0.2px;
+    transition: all 0.2s; text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { background: var(--teal-bright); transform: translateY(-1px); box-shadow: 0 8px 32px rgba(20,184,166,0.3); }
+  .btn-ghost {
+    background: transparent; color: var(--cloud);
+    padding: 14px 28px; border-radius: 8px;
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.2s; text-decoration: none; display: inline-block;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+
+  /* three-domain convergence rings visual */
+  .hero-visual {
+    position: absolute; right: 80px; top: 50%; transform: translateY(-50%);
+    width: 400px; height: 400px;
+  }
+  .rings-container {
+    width: 100%; height: 100%; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring-outer {
+    width: 380px; height: 380px;
+    border-color: rgba(20,184,166,0.15);
+    animation: rotateSlow 30s linear infinite;
+  }
+  .ring-mid {
+    width: 280px; height: 280px;
+    border-color: rgba(139,92,246,0.2);
+    animation: rotateSlow 20s linear infinite reverse;
+  }
+  .ring-inner {
+    width: 180px; height: 180px;
+    border-color: rgba(56,189,248,0.25);
+    animation: rotateSlow 12s linear infinite;
+  }
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .ring-dot {
+    position: absolute; width: 8px; height: 8px;
+    border-radius: 50%; top: -4px; left: 50%; transform: translateX(-50%);
+  }
+  .ring-outer .ring-dot { background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+  .ring-mid .ring-dot { background: var(--violet); box-shadow: 0 0 12px var(--violet); }
+  .ring-inner .ring-dot { background: var(--sky); box-shadow: 0 0 12px var(--sky); }
+  .ring-label {
+    position: absolute; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 600; white-space: nowrap;
+  }
+  .ring-label.risk { color: var(--teal); bottom: -32px; left: 50%; transform: translateX(-50%); }
+  .ring-label.quality { color: var(--violet); top: -32px; left: 50%; transform: translateX(-50%); }
+  .ring-label.cost { color: var(--sky); right: -56px; top: 50%; transform: translateY(-50%); }
+  .center-mark {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--violet));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(20,184,166,0.4);
+    font-family: var(--font-display); font-size: 20px; color: var(--white);
+    font-weight: 600; z-index: 2;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--deep);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 32px 80px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat-item {
+    text-align: center; padding: 0 24px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 38px; font-weight: 600; color: var(--white);
+    letter-spacing: -1px; margin-bottom: 4px;
+  }
+  .stat-num span { color: var(--teal); }
+  .stat-desc { font-size: 12px; color: var(--mist); letter-spacing: 0.5px; line-height: 1.5; }
+
+  /* ── SECTION COMMONS ── */
+  section { padding: 100px 80px; }
+  .section-eyebrow {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--teal); font-weight: 600; margin-bottom: 14px;
+  }
+  h2.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4vw, 48px); font-weight: 600;
+    color: var(--white); line-height: 1.15;
+    letter-spacing: -0.8px; margin-bottom: 20px;
+  }
+  h2.section-title em { font-style: italic; color: var(--teal); }
+  .section-body {
+    font-size: 16px; color: var(--cloud); max-width: 640px;
+    line-height: 1.75; font-weight: 300;
+  }
+
+  /* ── PROBLEM SECTION ── */
+  .problem-section { background: var(--deep); }
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); margin-top: 60px; border-radius: 12px; overflow: hidden; }
+  .prob-card {
+    background: var(--panel); padding: 32px 28px;
+    transition: background 0.2s;
+  }
+  .prob-card:hover { background: var(--surface); }
+  .prob-num {
+    font-family: var(--font-display); font-size: 52px; font-weight: 600;
+    color: var(--border); line-height: 1; margin-bottom: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .prob-card h3 { font-size: 17px; font-weight: 600; color: var(--white); margin-bottom: 10px; }
+  .prob-card p { font-size: 14px; color: var(--mist); line-height: 1.65; }
+
+  /* ── DOMAINS ── */
+  .domains-section { background: var(--night); }
+  .domain-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 52px; }
+  .domain-wide { grid-column: span 2; }
+  .domain-panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 32px; position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .domain-panel:hover { transform: translateY(-2px); }
+  .domain-panel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent);
+  }
+  .domain-panel.teal-domain { --accent: var(--teal); }
+  .domain-panel.teal-domain:hover { border-color: rgba(20,184,166,0.3); }
+  .domain-panel.violet-domain { --accent: var(--violet); }
+  .domain-panel.violet-domain:hover { border-color: rgba(139,92,246,0.3); }
+  .domain-panel.sky-domain { --accent: var(--sky); }
+  .domain-panel.sky-domain:hover { border-color: rgba(56,189,248,0.3); }
+  .domain-panel.amber-domain { --accent: var(--amber); }
+  .domain-panel.amber-domain:hover { border-color: rgba(251,191,36,0.3); }
+  .d-glyph {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  }
+  .domain-panel h3 { font-size: 18px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+  .domain-panel p { font-size: 14px; color: var(--cloud); line-height: 1.65; margin-bottom: 16px; }
+  .d-tag {
+    display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px;
+    font-weight: 600; letter-spacing: 0.5px;
+    background: var(--teal-dim); color: var(--teal-bright);
+  }
+  .violet-domain .d-tag { background: var(--violet-dim); color: #c4b5fd; }
+  .sky-domain .d-tag { background: var(--sky-dim); color: var(--sky); }
+  .amber-domain .d-tag { background: var(--amber-dim); color: var(--amber); }
+  .domain-pnl-badge {
+    position: absolute; top: 20px; right: 20px;
+    font-size: 11px; color: var(--mist); font-family: var(--font-mono);
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 4px;
+  }
+
+  /* ── TRIPLE PLAY ── */
+  .tripleplay-section { background: var(--deep); }
+  .tripleplay-layout { display: grid; grid-template-columns: 5fr 4fr; gap: 64px; align-items: start; margin-top: 52px; }
+  .tp-convo {
+    background: var(--night); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .tp-convo-header {
+    background: var(--surface); padding: 12px 20px;
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--mist); display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: pulse 2s ease-in-out infinite; }
+  .tp-msg { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+  .tp-msg:last-child { border-bottom: none; }
+  .tp-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .tp-u { background: var(--surface); color: var(--cloud); }
+  .tp-a { background: var(--teal); color: var(--night); }
+  .tp-role { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; color: var(--mist); }
+  .tp-a-role { color: var(--teal); }
+  .tp-text { font-size: 13px; color: var(--cloud); line-height: 1.65; }
+  .tp-result {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 14px; margin-top: 10px;
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--haze);
+    line-height: 1.7;
+  }
+  .tp-result .rl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--mist); margin-bottom: 6px; font-family: var(--font-body); font-weight: 600; }
+  .tp-result .tl { color: var(--teal-bright); }
+  .tp-result .vl { color: #c4b5fd; }
+  .tp-result .sl { color: var(--sky); }
+
+  .tp-benefits { }
+  .tp-benefits h3 { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--white); margin-bottom: 20px; line-height: 1.25; }
+  .benefit-item { display: flex; gap: 14px; margin-bottom: 24px; }
+  .benefit-icon {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: var(--teal-dim); border: 1px solid rgba(20,184,166,0.2);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .benefit-item h4 { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .benefit-item p { font-size: 13px; color: var(--mist); line-height: 1.6; }
+
+  /* ── HOW IT WORKS ── */
+  .how-section { background: var(--night); }
+  .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 52px; }
+  .step-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 24px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .step-card:hover { transform: translateY(-3px); border-color: rgba(20,184,166,0.25); }
+  .step-num {
+    font-family: var(--font-display); font-size: 64px; font-weight: 700;
+    position: absolute; top: -10px; right: 12px; opacity: 0.04; color: var(--white);
+    line-height: 1;
+  }
+  .step-icon { font-size: 28px; margin-bottom: 16px; }
+  .step-card h3 { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+  .step-card p { font-size: 13px; color: var(--mist); line-height: 1.65; }
+
+  /* ── USE CASES ── */
+  .usecases-section { background: var(--deep); }
+  .uc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 52px; }
+  .uc-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 24px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .uc-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+  .uc-icon { font-size: 32px; margin-bottom: 16px; }
+  .uc-badge {
+    display: inline-block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px; margin-bottom: 12px; font-weight: 600;
+    background: var(--teal-dim); color: var(--teal-bright);
+  }
+  .uc-card h3 { font-size: 17px; font-weight: 600; color: var(--white); margin-bottom: 10px; }
+  .uc-card p { font-size: 13.5px; color: var(--mist); line-height: 1.65; }
+
+  /* ── WHO ── */
+  .who-section { background: var(--night); }
+  .who-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 52px; }
+  .who-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 28px;
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .who-card:hover { border-color: rgba(20,184,166,0.25); }
+  .who-icon {
+    width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0;
+    background: var(--teal-dim); border: 1px solid rgba(20,184,166,0.2);
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .who-card h3 { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+  .who-card p { font-size: 13.5px; color: var(--mist); line-height: 1.6; }
+  .who-card .who-size { font-size: 11px; color: var(--teal); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--deep);
+    padding: 120px 80px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(20,184,166,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-section .section-eyebrow { text-align: center; }
+  .cta-section h2 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 58px); font-weight: 600;
+    color: var(--white); margin-bottom: 20px; line-height: 1.1;
+    letter-spacing: -1px; position: relative;
+  }
+  .cta-section h2 em { font-style: italic; color: var(--teal); }
+  .cta-section .cta-sub { font-size: 17px; color: var(--cloud); max-width: 520px; margin: 0 auto 40px; font-weight: 300; position: relative; }
+  .cta-actions { display: flex; gap: 14px; justify-content: center; position: relative; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--night); border-top: 1px solid var(--border);
+    padding: 40px 80px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-brand {
+    font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    color: var(--white);
+  }
+  .footer-brand span { color: var(--teal); }
+  .footer-tagline { font-size: 12px; color: var(--mist); margin-top: 4px; }
+  .footer-right { font-size: 12px; color: var(--mist); text-align: right; }
+  .footer-right .domains { color: var(--cloud); margin-bottom: 4px; }
+
+  @media (max-width: 1024px) {
+    .hero-visual { display: none; }
+    .tripleplay-layout { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .domain-wide { grid-column: span 1; }
+    .domain-layout { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .hero, section { padding: 80px 24px; }
+    .hero { padding-top: 100px; }
+    h2.section-title { font-size: 30px; }
+    .stats-bar { grid-template-columns: 1fr 1fr; padding: 24px; gap: 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+    .problem-grid, .uc-grid, .who-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand"><span>V</span>antage</a>
+  <div class="nav-links">
+    <a href="#domains">Domains</a>
+    <a href="#how">How It Works</a>
+    <a href="#usecases">Use Cases</a>
+    <a href="#who">Who It's For</a>
+    <a href="#" class="nav-cta">Request Access</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge"><span class="pulse"></span> Healthcare Value Intelligence</div>
+    <h1>
+      Model the future<br>
+      <em>before you fund it.</em>
+    </h1>
+    <p class="hero-sub">
+      Vantage is the first strategic simulation engine that shows you how a single intervention impacts <strong>risk adjustment revenue, Stars ratings, and medical cost</strong> — simultaneously, in one conversation.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">See It In Action</a>
+      <a href="#domains" class="btn-ghost">Explore the Platform →</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="rings-container">
+      <div class="ring ring-outer"><div class="ring-dot"></div><div class="ring-label risk">Risk Adjustment</div></div>
+      <div class="ring ring-mid"><div class="ring-dot"></div><div class="ring-label quality">Stars / Quality</div></div>
+      <div class="ring ring-inner"><div class="ring-dot"></div><div class="ring-label cost">Medical Cost</div></div>
+      <div class="center-mark">V</div>
+    </div>
+  </div>
+</header>
+
+<!-- ── STATS ── -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">$484<span>B</span></div>
+    <div class="stat-desc">Medicare Advantage market<br>served by Vantage's primary segment</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3<span>×</span></div>
+    <div class="stat-desc">Domains unified in a single<br>simulation surface</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">V28<span>↓</span></div>
+    <div class="stat-desc">HCC transition creating<br>immediate market urgency now</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">~<span>0</span></div>
+    <div class="stat-desc">Existing products delivering<br>integrated cross-domain simulation</div>
+  </div>
+</div>
+
+<!-- ── PROBLEM ── -->
+<section class="problem-section">
+  <div class="section-eyebrow">The Problem</div>
+  <h2 class="section-title">Strategy lives in silos.<br><em>The costs live in the gaps.</em></h2>
+  <p class="section-body">Medicare Advantage plans operate across three interconnected financial domains — each measured by different teams, with different tools, on different timelines. The result: no one ever sees the full picture before committing resources.</p>
+
+  <div class="problem-grid">
+    <div class="prob-card">
+      <div class="prob-num">01</div>
+      <h3>Siloed Analysis</h3>
+      <p>Risk adjustment, quality, and cost management are served by separate vendor ecosystems that never speak to each other. A question that touches all three can take weeks to answer.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num">02</div>
+      <h3>No Simulation Capability</h3>
+      <p>Incumbent platforms (Cotiviti, Inovalon, Optum) excel at measuring what happened. None offer self-service strategic simulation of what could happen — or what should.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num">03</div>
+      <h3>High-Stakes Blind Spots</h3>
+      <p>A wrong bet on a $3M care management program can cascade into a 3-star rating and $50M+ in downstream revenue impact. Decision-makers deserve better tools than spreadsheets and hope.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── DOMAINS ── -->
+<section class="domains-section" id="domains">
+  <div class="section-eyebrow">The Three Domains + One Lever</div>
+  <h2 class="section-title">Three P&amp;L lines.<br><em>One simulation surface.</em></h2>
+  <p class="section-body">Medicare Advantage is unique: each domain maps directly and independently to a distinct financial line item. Vantage is the only platform that models all three — and the operational lever that affects all of them — in a single integrated view.</p>
+
+  <div class="domain-layout">
+    <div class="domain-panel teal-domain">
+      <div class="domain-pnl-badge">→ Base Capitation Revenue</div>
+      <div class="d-glyph">◎</div>
+      <h3>Risk Adjustment</h3>
+      <p>CMS-HCC model V24 and V28. Every undocumented condition is revenue left on the table. We model the exposure, the opportunity, and the impact of coding improvement programs — including the V24→V28 transition affecting every MA plan today.</p>
+      <div class="d-tag">HCC · RAF · V28 Transition</div>
+    </div>
+    <div class="domain-panel violet-domain">
+      <div class="domain-pnl-badge">→ Quality Bonus Revenue</div>
+      <div class="d-glyph">★</div>
+      <h3>Stars / Quality</h3>
+      <p>40+ HEDIS and CAHPS measures. A 4-star plan earns a 5% quality bonus plus enhanced rebates. Stars cut-points shift relative to national performance — making this a competitive intelligence problem, not just a measurement one.</p>
+      <div class="d-tag violet-domain">Stars · HEDIS · Cut-Points</div>
+    </div>
+    <div class="domain-panel sky-domain">
+      <div class="domain-pnl-badge">→ Medical Margin</div>
+      <div class="d-glyph">💲</div>
+      <h3>Medical Cost / MLR</h3>
+      <p>Every dollar of unnecessary utilization directly erodes margin under capitation. We model care management programs, site-of-service steerage, utilization management, and chronic disease interventions against your population's actual cost profile.</p>
+      <div class="d-tag sky-domain">TCOC · MLR · VBC Contracts</div>
+    </div>
+    <div class="domain-panel amber-domain domain-wide">
+      <div class="d-glyph">🔬</div>
+      <h3>Prior Authorization — The Cross-Domain Lever</h3>
+      <p>PA isn't just a utilization management tool — it's a gating mechanism whose effects ripple through all three domains. Approve an imaging study and you may capture a new HCC. Approve preventive services and you improve quality measures. Relax PA for ACO-attributed members and you may reduce network churn while partially recovering cost through VBC shared savings. Vantage treats PA as a configurable simulation lever — dial the policy, see the cross-domain impact. Aligned with FHIR Da Vinci implementation guides for future real-world data integration.</p>
+      <div class="d-tag amber-domain">Prior Auth · Da Vinci FHIR · Utilization Management</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRIPLE-PLAY ── -->
+<section class="tripleplay-section" id="tripleplay">
+  <div class="section-eyebrow">The Triple-Play</div>
+  <h2 class="section-title">One intervention.<br><em>Three domains. One answer.</em></h2>
+
+  <div class="tripleplay-layout">
+    <div class="tp-convo">
+      <div class="tp-convo-header"><span class="tp-dot"></span> Vantage — Live Simulation</div>
+      <div class="tp-msg">
+        <div class="tp-avatar tp-u">U</div>
+        <div>
+          <div class="tp-role">VP Population Health</div>
+          <p class="tp-text">We're considering a pharmacist-led hypertension program. $400K budget. Target: members with HTN who've had at least one ER visit this year. What's the ROI across risk, quality, and cost?</p>
+        </div>
+      </div>
+      <div class="tp-msg">
+        <div class="tp-avatar tp-a">V</div>
+        <div>
+          <div class="tp-role tp-a-role">Vantage</div>
+          <p class="tp-text">Identifying cohort, baselining all three domains, running intervention model against published pharmacist HTN program efficacy data...</p>
+          <div class="tp-result">
+            <div class="rl">Triple-Play Impact · 412 Members · 65% Engagement</div>
+            <span class="tl">RISK ·</span> +$277K revenue (85 new HCCs captured)<br>
+            <span class="vl">STARS ·</span> +2.4pt BP control → 3★ to 4★ on CMS165<br>
+            <span class="sl">COST ·</span> −$620K avoided (ER/inpatient reduction)<br>
+            ──────────────────────────────────<br>
+            <strong style="color:#fff">NET ROI: 2.7×  ·  Break-even: Month 5</strong><br>
+            Conservative (30% haircut): 2.2× · Month 7
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tp-benefits">
+      <h3>What makes this different from every other analytics platform</h3>
+      <div class="benefit-item">
+        <div class="benefit-icon">⚡</div>
+        <div>
+          <h4>Minutes, not weeks</h4>
+          <p>Cross-domain simulation that used to require coordinating actuaries, quality analysts, and finance teams now happens in a single conversation.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">🎯</div>
+        <div>
+          <h4>Confidence ranges, not point estimates</h4>
+          <p>Every projection includes base, conservative, and optimistic scenarios with explicit assumptions. Decision-makers understand what they're betting on.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">🧠</div>
+        <div>
+          <h4>Strategic intelligence, not operational reporting</h4>
+          <p>Vantage is positioned at the prescriptive end of the analytics maturity spectrum — where competition is thinner and the value is highest.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">📋</div>
+        <div>
+          <h4>Board-ready output</h4>
+          <p>Conversations end with presentation-ready executive summaries. From question to C-suite recommendation in one session.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW ── -->
+<section class="how-section" id="how">
+  <div class="section-eyebrow">How It Works</div>
+  <h2 class="section-title">A conversation that thinks <em>like a team of analysts.</em></h2>
+  <p class="section-body">Vantage is a Claude-native AI agent with deep healthcare domain expertise. It orchestrates multiple specialized models in the background while you interact through natural language.</p>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-icon">👥</div>
+      <h3>Define Your Population</h3>
+      <p>Start with your member profile — market, demographics, condition mix. Vantage calibrates a synthetic population that reflects your real-world panel without exposing PHI.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">📊</div>
+      <div class="step-num">2</div>
+      <h3>Establish Baseline</h3>
+      <p>Automatically calculate current RAF scores (V24 and V28), quality measure performance, Stars position, and TCOC profile. See where you stand across all three domains.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-icon">🎚</div>
+      <h3>Configure Interventions</h3>
+      <p>Choose from the intervention library — coding programs, chronic disease management, PA policy changes, network steerage — or describe what you're considering in plain language.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-icon">🔮</div>
+      <h3>Simulate &amp; Compare</h3>
+      <p>Run scenarios through all three domain models simultaneously. Compare options side-by-side. Get multi-year projections. Export presentation-ready reports for leadership decisions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── USE CASES ── -->
+<section class="usecases-section" id="usecases">
+  <div class="section-eyebrow">Use Cases</div>
+  <h2 class="section-title">The questions Vantage <em>answers in minutes.</em></h2>
+
+  <div class="uc-grid">
+    <div class="uc-card">
+      <div class="uc-icon">📉</div>
+      <div class="uc-badge">V28 Transition</div>
+      <h3>V24→V28 Exposure Analysis</h3>
+      <p>Quantify your exposure to the HCC model transition by member, HCC category, and revenue impact. Identify the 15% of members driving 68% of the exposure. Build a targeted documentation strategy before revenue is lost.</p>
+    </div>
+    <div class="uc-card">
+      <div class="uc-icon">💊</div>
+      <div class="uc-badge">Program ROI</div>
+      <h3>Care Program Investment Modeling</h3>
+      <p>Before committing $400K to a chronic disease management program, model the projected return across risk adjustment, Stars quality measures, and cost avoidance. Know your break-even month before hiring the first nurse.</p>
+    </div>
+    <div class="uc-card">
+      <div class="uc-icon">⭐</div>
+      <div class="uc-badge">Stars Strategy</div>
+      <h3>Stars Cut-Point Intelligence</h3>
+      <p>Find the two or three measure-level moves that cross the 4-star threshold. Stars uses relative scoring that shifts with national distributions — Vantage models where cut-points are likely to land and which gaps are most reachable.</p>
+    </div>
+    <div class="uc-card">
+      <div class="uc-icon">🔬</div>
+      <div class="uc-badge">Utilization Mgmt</div>
+      <h3>Prior Auth Policy Simulation</h3>
+      <p>Model the full cross-domain impact of changing PA approval thresholds for ACO-attributed members. Find the policy setting that retains the network and preserves medical margin — with data, not intuition.</p>
+    </div>
+    <div class="uc-card">
+      <div class="uc-icon">🏥</div>
+      <div class="uc-badge">Network Strategy</div>
+      <h3>Network &amp; Provider Analysis</h3>
+      <p>Evaluate the integrated financial impact of adding or losing a provider group. Model coding quality, quality measure performance, and cost efficiency of the affected panel simultaneously.</p>
+    </div>
+    <div class="uc-card">
+      <div class="uc-icon">📋</div>
+      <div class="uc-badge">Regulatory</div>
+      <h3>Regulatory Impact Modeling</h3>
+      <p>CMS changes rules. Vantage helps you understand your exposure before the change takes effect. RADV audit risk, Stars methodology updates, ACO benchmark changes — model the impact before it hits the P&L.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHO ── -->
+<section class="who-section" id="who">
+  <div class="section-eyebrow">Who It's For</div>
+  <h2 class="section-title">Built for the organizations that <em>need to think ahead.</em></h2>
+
+  <div class="who-grid">
+    <div class="who-card">
+      <div class="who-icon">🏢</div>
+      <div>
+        <div class="who-size">Healthcare Consulting Firms</div>
+        <h3>Practices serving MA Plans &amp; ACOs</h3>
+        <p>Deliver cross-domain client analysis in hours instead of weeks. Vantage gives your practice a simulation capability that currently exists only at the largest internal actuarial teams. Use across multiple client engagements.</p>
+      </div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🏦</div>
+      <div>
+        <div class="who-size">30K–300K Members</div>
+        <h3>Mid-Market Medicare Advantage Plans</h3>
+        <p>You face the same strategic decisions as UnitedHealthcare or Humana, but without a 50-person actuarial team. Vantage gives you in-house simulation capability for V28 transition, Stars strategy, and program ROI analysis.</p>
+      </div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🏥</div>
+      <div>
+        <div class="who-size">Health System MA Products</div>
+        <h3>Provider-Sponsored Plans</h3>
+        <p>Bridging clinical operations and insurance financial management is uniquely hard. Vantage speaks both languages — modeling how clinical program investments translate to insurance P&L outcomes across all three domains.</p>
+      </div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🤝</div>
+      <div>
+        <div class="who-size">MSSP / REACH ACOs</div>
+        <h3>Risk-Bearing Provider Organizations</h3>
+        <p>Optimize shared savings strategy with integrated cost and quality modeling. Understand how PA policy changes affect VBC contract performance. Model the MA expansion opportunity before committing to it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="section-eyebrow" style="text-align:center;">Early Access</div>
+  <h2>Ready to see your strategy<br><em>before you execute it?</em></h2>
+  <p class="cta-sub">Vantage is in active development. We're working with early partners to prove the platform on real strategic questions. If you're thinking about the V28 transition, a 4-star push, or a major program investment — let's talk.</p>
+  <div class="cta-actions">
+    <a href="#" class="btn-primary">Request Early Access</a>
+    <a href="#" class="btn-ghost">Read the Architecture Docs →</a>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="footer-brand"><span>V</span>antage</div>
+    <div class="footer-tagline">Healthcare Value Intelligence · One Surface. One Conversation.</div>
+  </div>
+  <div class="footer-right">
+    <div class="domains">Risk Adjustment · Stars / Quality · Medical Cost · Prior Authorization</div>
+    <div>© 2026 · Built on Claude · FHIR Da Vinci Aligned</div>
+  </div>
+</footer>
+
+</body>
+</html>
