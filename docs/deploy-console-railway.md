@@ -66,6 +66,18 @@ AuthKit's default sign-in methods (email) work as they are; add others in WorkOS
 Use `VANTAGE_ALLOWED_EMAILS` if AuthKit sign-up is open, so only the people you
 list get past the callback.
 
+## How it deploys
+
+The Railway service `vantage-console` (project `vantage`, environment `production`) is
+linked to this repo and redeploys on every push to `main`, so a merged PR is live a few
+minutes later. Railway health-checks `/health` before switching traffic. Sign-in uses
+the WorkOS staging environment for now (Console and hosted MCP); moving to WorkOS
+production means swapping `WORKOS_API_KEY`/`WORKOS_CLIENT_ID` (and `AUTHKIT_DOMAIN` on
+Horizon) and re-running `scripts/workos_setup.py` for the callback.
+
+The hosted MCP server on Horizon uses the same allowlist: set `VANTAGE_ALLOWED_EMAILS`
+and `WORKOS_API_KEY` there too (see docs/deploy-mcp-horizon.md).
+
 ## Check it
 
 ```bash
