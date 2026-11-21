@@ -90,3 +90,26 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 `forward_adjudication` (Module 2, after June 7) joins when that module exists.
 Export a bid pack with `GET /api/runs/{run_id}/bid-pack?format=csv|xlsx|memo` or
 `vantage bid-export <run_id> --format xlsx --out pack.xlsx`.
+
+## Switching to WorkOS sign-in (P-05, Horizon Pro)
+
+The server uses WorkOS AuthKit when `AUTHKIT_DOMAIN` is set, and otherwise has
+no auth of its own (local runs, or Horizon's managed OAuth). Never use both on the
+hosted server.
+
+1. In WorkOS, these are the settings FastMCP's AuthKit guide calls for. Its
+   dashboard path was "Applications → Configuration", but check it on screen.
+   - Turn on **Dynamic Client Registration**, so Claude and other MCP clients
+     can register themselves.
+   - Turn on **Resource Indicators**, and list `https://vantage.fastmcp.app/mcp`
+     as the resource, so tokens carry that audience.
+   - Copy the AuthKit domain. It looks like `https://<name>-<id>.authkit.app`.
+2. In Horizon, on the vantage server:
+   - add the environment variables `AUTHKIT_DOMAIN` = that domain and
+     `BASE_URL` = `https://vantage.fastmcp.app`
+   - turn Horizon's own authentication off
+   - redeploy
+3. Reconnect each client. Claude Code: run `/mcp`, pick vantage and sign in
+   again. The sign-in page is now WorkOS.
+
+To roll back, remove `AUTHKIT_DOMAIN` and turn Horizon auth back on.
