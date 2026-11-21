@@ -15,18 +15,17 @@ allow: none of Horizon, Prefect or MotherDuck's plans in use come with a BAA.
 
 ## 1. Put the data in MotherDuck (once, then after reference refreshes)
 
-1. In MotherDuck, create an access token (Settings → Access tokens). Treat it as a secret.
-2. Add it to the GitHub repo as an Actions secret named `MOTHERDUCK_TOKEN`
-   (Settings → Secrets and variables → Actions).
-3. Check the round trip: Actions → CI → Run workflow → tick
-   "publish the DB to MotherDuck". That builds the DB, publishes it to
-   `md:vantage_ci` and runs the service, REST and MCP tests against it.
-4. Publish the database the server will use (locally, or as a one-off step):
-
-   ```bash
-   uv run python scripts/init_db.py --rebuild
-   MOTHERDUCK_TOKEN=... uv run python scripts/publish_motherduck.py --name vantage
-   ```
+1. MotherDuck (app.motherduck.com) → your name/avatar, top left → **Settings** →
+   **Access Tokens** → **Create token**. Name it `vantage-github`, type
+   Read/Write, no expiry (or a long one). Copy it now; it is shown once.
+2. GitHub → `mark64oswald/vantage` → **Settings** → **Secrets and variables** →
+   **Actions** → **New repository secret**. Name `MOTHERDUCK_TOKEN`, paste the
+   token, **Add secret**.
+3. GitHub → **Actions** → **CI** (left list) → **Run workflow** (right) → branch
+   `main`, tick **run_motherduck** → **Run workflow**. The `motherduck` job
+   builds the database, publishes it to `md:vantage_ci`, runs the service, REST
+   and MCP tests against it, and if they pass publishes `md:vantage`, the
+   database the hosted server reads. No local tools needed.
 
 ## 2. Create the Horizon server
 
@@ -37,7 +36,7 @@ In Horizon (signed in with GitHub), create a server from `mark64oswald/vantage`:
 | Server name | `vantage` (sets the URL, `https://vantage.fastmcp.app/mcp`) |
 | Entrypoint | `packages/mcp/src/vantage_mcp/server.py:mcp` |
 | Authentication | On (Horizon managed OAuth; only your organization can connect) |
-| Environment | `VANTAGE_DB=md:vantage`, `MOTHERDUCK_TOKEN=<token>` |
+| Environment variables | `VANTAGE_DB` = `md:vantage`; `MOTHERDUCK_TOKEN` = the same token (mark it secret if offered) |
 | PR previews | On |
 
 Horizon installs dependencies from the root `pyproject.toml`. The repo is a uv
