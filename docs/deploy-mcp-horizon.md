@@ -83,7 +83,8 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 | `audit_source_exposure` | drivers by HCC family and dx source, review priority | no |
 | `stars_forecast` | P(4+) and rating distribution per contract | yes |
 | `stars_value` | QBP probability, payment range, $ per measure point | yes |
+| `bid_benchmark` | service-area benchmark, effective QBP and rebate from the CMS rate book | no |
 | `list_runs`, `get_run`, `compare_runs` | stored runs and provenance | no |
 
 `forward_adjudication` (Module 2, after June 7) and `bid_assumption_pack`
-(Phase 4) join when those modules exist.
+(Phase 4, B-04) join when those modules exist.
