@@ -46,11 +46,22 @@ Horizon-specific requirements file.
 
 ## 3. Smoke test
 
-1. In Claude Desktop, add a custom connector with the Horizon URL and sign in.
-2. Ask: "List Vantage policy sets", then "Run net_risk_position on
-   demo-bayside-100k under crush_proposed_2026 with seed 11 and 500 draws".
-3. The answer should carry a `run_id`; `get_run` on that id from the CLI
-   (`VANTAGE_DB=md:vantage uv run vantage run <run_id>`) returns the same headline.
+From Claude Code (the most reliable client to test with):
+
+```bash
+claude mcp add --scope user --transport http vantage https://vantage.fastmcp.app/mcp
+```
+
+`--scope user` matters: the default scope registers the server only for the
+folder the command ran in. Restart Claude Code, run `/mcp` and sign in, then ask:
+
+1. "Use the vantage MCP to list the policy sets."
+2. "Use vantage to run net_risk_position on demo-bayside-100k under
+   crush_proposed_2026, seed 11, 500 draws." The answer carries a `run_id`;
+   `VANTAGE_DB=md:vantage uv run vantage run <run_id>` returns the same headline.
+
+Horizon's server page also has its own chat for a quick check. Claude Desktop and
+claude.ai connector menus change often; look for a custom connector option there.
 
 ## Local equivalents
 
