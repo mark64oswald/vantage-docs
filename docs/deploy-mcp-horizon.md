@@ -109,6 +109,10 @@ hosted server.
 2. In Horizon, on the vantage server:
    - add the environment variables `AUTHKIT_DOMAIN` = that domain and
      `BASE_URL` = `https://vantage.fastmcp.app`
+   - to limit who can connect, add `VANTAGE_ALLOWED_EMAILS` (comma list of
+     addresses or `@domain`s, same format as the Console) and `WORKOS_API_KEY`
+     (the server looks up each signed-in user's email with it). Without
+     `VANTAGE_ALLOWED_EMAILS`, anyone who can sign up in AuthKit gets in.
    - turn Horizon's own authentication off
    - redeploy
 3. Reconnect each client. Claude Code: run `/mcp`, pick vantage and sign in
