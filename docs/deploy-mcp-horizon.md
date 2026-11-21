@@ -84,6 +84,8 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 | `stars_forecast` | P(4+) and rating distribution per contract | yes |
 | `stars_value` | QBP probability, payment range, $ per measure point | yes |
 | `bid_benchmark` | service-area benchmark, effective QBP and rebate from the CMS rate book | no |
+| `search_counties` | find a county's SSA code and rates in the CMS rate book | no |
+| `search_star_contracts` | published Star Ratings by contract or parent organization | no |
 | `bid_assumption_pack` | CY bid assumptions (risk score, QBP, rebate, RADV reserve, net revenue) with P10/P50/P90 and sources | yes |
 | `list_runs`, `get_run`, `compare_runs` | stored runs and provenance | no |
 
