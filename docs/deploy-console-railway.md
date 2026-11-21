@@ -54,11 +54,14 @@ spend API credit for strangers. Railway sets `PORT`; the app reads it.
 
 ## WorkOS settings
 
-In the WorkOS dashboard (check the exact labels on screen):
+Register the callback with the WorkOS API (no dashboard): copy your WorkOS API key, then
 
-1. Add `<VANTAGE_PUBLIC_URL>/auth/callback` as a **redirect URI**.
-2. Set the **sign-out redirect** to `<VANTAGE_PUBLIC_URL>/auth/signed-out`.
-3. Turn on the sign-in methods you want for AuthKit (email, Google, ...).
+```bash
+pbpaste | uv run python scripts/workos_setup.py <VANTAGE_PUBLIC_URL>
+```
+
+Sign-out only clears the Console's cookie, so no sign-out redirect is needed.
+AuthKit's default sign-in methods (email) work as they are; add others in WorkOS if you want them.
 
 Use `VANTAGE_ALLOWED_EMAILS` if AuthKit sign-up is open, so only the people you
 list get past the callback.
