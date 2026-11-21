@@ -8,6 +8,7 @@ the Console shows up in Claude Desktop and the other way round.
 ```
  browser ──► Railway: vantage-api (FastAPI)
                ├── /console        static Console (U-01..U-05)
+               ├── /console/brief  Brief (E-6): answer cards, pinned decision brief, memo
                ├── /api/*          REST over vantage-services
                ├── /api/chat       Ask Vantage: Claude + the MCP tools ──► Anthropic API
                ├── /auth/*         WorkOS AuthKit sign-in (P-06)
