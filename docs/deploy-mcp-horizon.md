@@ -84,7 +84,9 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 | `stars_forecast` | P(4+) and rating distribution per contract | yes |
 | `stars_value` | QBP probability, payment range, $ per measure point | yes |
 | `bid_benchmark` | service-area benchmark, effective QBP and rebate from the CMS rate book | no |
+| `bid_assumption_pack` | CY bid assumptions (risk score, QBP, rebate, RADV reserve, net revenue) with P10/P50/P90 and sources | yes |
 | `list_runs`, `get_run`, `compare_runs` | stored runs and provenance | no |
 
-`forward_adjudication` (Module 2, after June 7) and `bid_assumption_pack`
-(Phase 4, B-04) join when those modules exist.
+`forward_adjudication` (Module 2, after June 7) joins when that module exists.
+Export a bid pack with `GET /api/runs/{run_id}/bid-pack?format=csv|xlsx|memo` or
+`vantage bid-export <run_id> --format xlsx --out pack.xlsx`.
