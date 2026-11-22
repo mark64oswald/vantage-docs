@@ -118,6 +118,39 @@ uv run vantage settlement --dataset demo-harborview-38k --seed 42 \
     --terms ma_pct_base ma_pct_withhold_4 --policy crush_proposed_2026
 ```
 
+## Outcomes feed (calibration)
+
+The input feed above is what every run reads. The **outcomes feed** is optional: observed
+actuals that update the weights a calibrated run uses ([calibration](calibration.md)). For a data
+partner that holds outcomes but not a plan's population, it is the whole integration.
+
+```
+inputs/outcomes/<outcomes_id>/
+  outcomes.yaml            outcomes_id, applies_to (dataset id), scope (own_runs | shared), source
+  audit_outcomes.csv       hcc_family, dx_source, payment_year, n_reviewed, n_supported
+  program_outcomes.csv     weight_id, period, n_members, observed_effect, se
+  settlement_actuals.csv   contract_id, payment_year, member_months, group_settlement
+```
+
+Every file is optional; same rules as the input feed (aggregates only, member-level column names
+reject the file, cells under 11 charts or members are dropped).
+
+```bash
+uv run vantage load-outcomes inputs/outcomes/sample-harborview-outcomes --dry-run
+uv run vantage load-outcomes inputs/outcomes/sample-harborview-outcomes
+uv run vantage drop-outcomes sample-harborview-outcomes
+```
+
+- `scope: own_runs` (default): only runs on `applies_to` read the evidence. `shared` records the
+  customer's consent to pool it into the shared calibrated release (rebuilt by `vantage calibrate`).
+- Audit outcomes update each HCC family's support-rate prior for **calibrated** runs: net risk
+  position and the settlement that reads it. With the sample file, Harborview's calibrated
+  recovery rises about a fifth; a literature-prior run is unchanged. Cells the input dataset
+  already counts (`n_supported`) keep their own counts.
+- Program outcomes update effect-weight posteriors in the shared release when shared;
+  settlement actuals are stored for the settlement back-test.
+- Loading outcomes changes the run fingerprint, so an earlier run is not reused.
+
 ## Removing a dataset
 
 ```bash
