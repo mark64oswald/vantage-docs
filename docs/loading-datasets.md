@@ -118,6 +118,38 @@ uv run vantage settlement --dataset demo-harborview-38k --seed 42 \
     --terms ma_pct_base ma_pct_withhold_4 --policy crush_proposed_2026
 ```
 
+## ACO profiles (ACO mode)
+
+ACO Track Choice runs on any public Shared Savings Program ACO by its id (from the public
+results file loaded at build), or on an **ACO profile**: an ACO's own aggregate numbers from
+its benchmark reports, as YAML under `inputs/aco/`. No beneficiary data.
+
+```yaml
+profile_id: my-aco
+name: My ACO
+kind: customer
+data_year: 2024
+n_ab: 18400                  # assigned beneficiaries
+benchmark_pc: 13450          # updated benchmark per assigned beneficiary ($)
+history:                     # savings rate = (benchmark - expenditure) / benchmark
+  - {year: 2023, savings_rate: 0.038}
+  - {year: 2024, savings_rate: 0.044}
+qual_score: 84.2             # MSSP quality score, 0-100
+track: BASIC_E
+rev_exp_cat: Low Revenue     # or High Revenue
+rebase_next: true            # the next agreement rebases the benchmark
+```
+
+The database build loads every profile in `inputs/aco/` and the public results in
+`reference-data/vbc/mssp_aco_results.csv`. `uv run vantage load-aco` (re)loads both into an
+existing database, such as `VANTAGE_DB=md:vantage`; `--profiles DIR` reads another folder.
+MSSP and LEAD term sets live with the others in `policy/contracts/` (`load-terms`).
+
+```bash
+uv run vantage aco --profile my-aco --terms mssp_basic_e mssp_enhanced lead_global --horizon 5
+uv run vantage aco-backtest --rerun      # after loading a new year of public results
+```
+
 ## Outcomes feed (calibration)
 
 The input feed above is what every run reads. The **outcomes feed** is optional: observed
