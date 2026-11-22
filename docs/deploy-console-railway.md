@@ -24,7 +24,7 @@ is covered by a BAA in this setup.
 | Thing | Where it comes from |
 |---|---|
 | Anthropic API key | Claude Console → API keys. Pay per use. |
-| MotherDuck token | the one already in GitHub secrets / Horizon (`MOTHERDUCK_TOKEN`) |
+| MotherDuck token | the one already in GitHub secrets (`MOTHERDUCK_TOKEN`) |
 | WorkOS API key and client ID | WorkOS dashboard → API keys (same WorkOS account as P-05) |
 | Cookie password | generate locally, see below |
 | Railway project | Hobby plan; deploy from the GitHub repo |
@@ -48,8 +48,8 @@ uv run python -c "from cryptography.fernet import Fernet; print(Fernet.generate_
 | `VANTAGE_ALLOWED_EMAILS` | optional, comma list of addresses or `@domain`s allowed in |
 | `VANTAGE_CHAT_MODEL` | optional; default `claude-opus-5-5` |
 
-The Dockerfile already sets `VANTAGE_DB=md:vantage`, `VANTAGE_MOUNT_MCP=0` (the
-MCP server lives on Horizon) and `VANTAGE_REQUIRE_AUTH=1`: until the `WORKOS_*`
+The Dockerfile already sets `VANTAGE_DB=md:vantage`, `VANTAGE_MOUNT_MCP=0` (no
+`/mcp` on the Console host; the MCP server answers on its own host, see docs/deploy-mcp.md) and `VANTAGE_REQUIRE_AUTH=1`: until the `WORKOS_*`
 variables are set, every page except `/health` returns 503, so the chat can't
 spend API credit for strangers. Railway sets `PORT`; the app reads it.
 
@@ -76,11 +76,10 @@ minutes later. Railway health-checks `/health` before switching traffic. Build
 the service itself; the repo has no `railway.json`, since Railway stops reading
 config-as-code files after 2026-12-01 and this service never used it. Sign-in uses
 the WorkOS staging environment for now (Console and hosted MCP); moving to WorkOS
-production means swapping `WORKOS_API_KEY`/`WORKOS_CLIENT_ID` (and `AUTHKIT_DOMAIN` on
-Horizon) and re-running `scripts/workos_setup.py` for the callback.
+production means swapping `WORKOS_API_KEY`/`WORKOS_CLIENT_ID` (and `AUTHKIT_DOMAIN`) and re-running `scripts/workos_setup.py` for the callback.
 
-The hosted MCP server on Horizon uses the same allowlist: set `VANTAGE_ALLOWED_EMAILS`
-and `WORKOS_API_KEY` there too (see docs/deploy-mcp-horizon.md).
+The hosted MCP server runs in this same service on `mcp.vantage-intelligence.ai` and
+uses the same `VANTAGE_ALLOWED_EMAILS` and `WORKOS_API_KEY` (see docs/deploy-mcp.md).
 
 ## Check it
 

@@ -19,7 +19,7 @@ Nov 22, 2026).
 |---|---|
 | `VANTAGE_PUBLIC_URL` | `https://app.vantage-intelligence.ai` |
 | `VANTAGE_MCP_HOST` | `mcp.vantage-intelligence.ai` |
-| `AUTHKIT_DOMAIN` | the AuthKit domain (same value as on Horizon) |
+| `AUTHKIT_DOMAIN` | the AuthKit domain (`https://<name>-<id>.authkit.app`) |
 | `BASE_URL` | `https://mcp.vantage-intelligence.ai` |
 | `VANTAGE_ALLOWED_EMAILS`, `WORKOS_API_KEY` | already set for the Console |
 
@@ -42,4 +42,4 @@ asks for one). Add each in GoDaddy DNS for `vantage-intelligence.ai`: host `app`
   checks the new hosts.
 - Re-add the MCP server in clients:
   `claude mcp add --scope user --transport http vantage https://mcp.vantage-intelligence.ai/mcp`.
-- Keep the Horizon server running until clients have moved, then retire it.
+- The old Prefect Horizon server (`vantage.fastmcp.app`) was retired on Nov 22, 2026.

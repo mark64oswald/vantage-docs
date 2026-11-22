@@ -37,7 +37,7 @@ same `dataset_id`. Check it with `uv run vantage datasets`.
 
 ## 3. Make it visible in the hosted Console and MCP
 
-The hosted Console (Railway) and the hosted MCP server (Horizon) both read MotherDuck
+The hosted Console and the hosted MCP server (both on Railway) read MotherDuck
 `md:vantage`. There are two ways to get a dataset there.
 
 **Load straight into MotherDuck** (keeps every run already saved there). From a machine
