@@ -85,7 +85,19 @@ uv run vantage drop-dataset sample-kestrel-23k --force   # runs are kept; its pr
 
 ## Demo: sample customer dataset
 
-`inputs/datasets/sample-kestrel-23k/` is a fictional customer submission (Kestrel Health
-Plan, kind `customer`, every number synthetic) built with the integration kit. The header
-badge reads "Sample customer data" when it is selected; synthetic demo datasets read
-"Synthetic data" and real customer datasets "Customer data".
+`inputs/samples/sample-kestrel-23k/` is a fictional customer submission (Kestrel Health
+Plan, kind `customer`, every number synthetic) built with the integration kit. Samples are
+not part of a database build; they are imported for a demo and removed afterwards, so the
+demo can be repeated for each prospect.
+
+- **Console**: Runs & Library → *Sample customer data* → **Import sample customer**. The
+  Console switches to it; the header badge reads "Sample customer data". When the demo is
+  over, **Remove sample customer** (click twice) deletes it with every run and proposal made
+  on it. Bayside and Harborview are never touched.
+- **CLI**: `uv run vantage sample list`, `uv run vantage sample import`,
+  `uv run vantage sample remove` (default id `sample-kestrel-23k`; add
+  `VANTAGE_DB=md:vantage` to act on the hosted site).
+- **REST**: `GET /api/samples`, `POST /api/samples/{id}/import`, `DELETE /api/samples/{id}`.
+
+Only ids starting with `sample-` that exist under `inputs/samples/` can be imported or
+removed this way. Real customer data uses `load-dataset` and `drop-dataset`.
