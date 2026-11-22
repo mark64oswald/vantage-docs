@@ -63,3 +63,29 @@ current hosted stack is for synthetic and public data only.
 The API applies the current schema (new tables, `ADD COLUMN IF NOT EXISTS`) to its database
 at startup, so a deploy that adds a column no longer needs a republish to keep working.
 New *data* (such as a new demo dataset) still needs one of the two loads above.
+
+## Audit results, rates and families
+
+- `n_supported` counts supported HCCs over **all** `n_hccs`, unless you also send
+  `n_reviewed`: the number of charts an audit actually reviewed in that cell. Then support is
+  `n_supported / n_reviewed`, and the uncertainty is sized to the sample (40 charts reviewed
+  carry 40 charts' worth of evidence, however many HCCs the cell holds). Either side of the
+  reviewed split under `min_cell_size` is suppressed, like any other small cell.
+- A `support_rate` without counts is used as the cell's mean support, with the literature
+  prior's strength around it (no counts, so no more certainty than the prior).
+- `hcc_family` must be one of `reference.hcc_family`; unknown families fail the load (and
+  the dry run) with the list of offenders.
+
+## Removing a dataset
+
+```bash
+uv run vantage drop-dataset sample-kestrel-23k           # refused if runs or proposals use it
+uv run vantage drop-dataset sample-kestrel-23k --force   # runs are kept; its proposals are deleted
+```
+
+## Demo: sample customer dataset
+
+`inputs/datasets/sample-kestrel-23k/` is a fictional customer submission (Kestrel Health
+Plan, kind `customer`, every number synthetic) built with the integration kit. The header
+badge reads "Sample customer data" when it is selected; synthetic demo datasets read
+"Synthetic data" and real customer datasets "Customer data".
