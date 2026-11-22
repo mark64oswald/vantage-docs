@@ -28,9 +28,11 @@ the announcement into a re-priced assumption pack in one sitting.
    - NPCMAGP
    - FFS growth
 3. Collapse the `bid.*` ranges onto those values.
-4. Run `uv run python scripts/init_db.py` to load the new set.
+4. Load the new set: `uv run vantage load-policy policy/sets/ma_payment_2028.yaml`
+   (add `VANTAGE_DB=md:vantage` in front to load it straight into the hosted site,
+   keeping its saved runs). `scripts/init_db.py` also picks it up on the next rebuild.
 5. Run the drill:
-   `uv run vantage bid-drill <baseline run_id> --policy ma_payment_2028`.
+   `uv run vantage bid-drill <baseline run_id> --policy ma_payment_2028 --memo drill.md`.
    It re-runs the pack with the same inputs and seed. It returns the
    assumptions that moved (P50 before and after, and the basis change from
    illustrative to rule_text), plus the headline comparison.
@@ -40,3 +42,15 @@ the announcement into a re-priced assumption pack in one sitting.
    of growing the 2027 ones. Set the growth range to 0 in that set.
 7. Export the memo for the bid team:
    `uv run vantage bid-export <drill run_id> --format memo --out drill.md`.
+
+## Rehearsal
+
+`uv run python scripts/rehearse_rate_drill.py` runs all of the above on a local database,
+with the CY2027 Rate Announcement values (April 6, 2026) standing in for CY2028: it fills
+the template exactly as on the day (under the id `rehearsal_2028_mock`, status
+hypothetical), loads it, drills a Bayside baseline and writes the memo with its "what
+moved" table to `outputs/drill-rehearsal/`. The first rehearsal (Nov 22, 2026) ran in
+under five seconds of compute; it found that `status` must be final, hypothetical or
+proposed, that the plain `init_db.py` route was slower and riskier than loading one set
+(hence `load-policy`), and that the memo didn't say what moved (hence `--memo`).
+Re-run it after any change to the bid code or the template.
