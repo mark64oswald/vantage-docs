@@ -1,14 +1,26 @@
 # Loading an aggregate dataset
 
 Vantage takes **aggregate, small-cell-suppressed** inputs only. A dataset is a folder with
-three files:
+three files, plus a fourth for a risk-bearing group that wants Forward Settlement (Module 2):
 
 ```
 my-dataset/
   dataset.yaml              # dataset_id, kind, name, entity_type, premium_share, min_cell_size, description
+                            #   [, stars_contract: public H-number whose Star Ratings stand in for the plan]
   contract_enrollment.csv   # contract_id, pbp_id, payment_year, plan_segment, member_months, avg_raf
   hcc_support.csv           # payment_year, contract_id, hcc_family, dx_source, n_hccs [, n_supported | support_rate, rate_basis]
+  group_financials.csv      # optional: contract_id, payment_year, member_months, medical_cost_pmpm
+                            #   [, rx_cost_pmpm, rx_revenue_pmpm]
 ```
+
+`stars_contract` names the public contract (for example `H2406`) whose Star Ratings the
+Stars engine forecasts for this dataset. Scenario Studio, Program ROI and Forward Settlement
+use it; without it they fall back to `H2663`, a 3.5-star contract.
+
+`group_financials.csv` holds the group's paid medical and pharmacy cost per member per
+month by contract and year. Forward Settlement reads the latest year and trends it to the
+payment year. Rows under `min_cell_size` member months are suppressed; negative costs fail
+the load.
 
 See `inputs/datasets/demo-harborview-38k/` for a complete example. Member-level columns
 (member ids, names, dates of birth and the like) are rejected outright.
@@ -75,6 +87,36 @@ New *data* (such as a new demo dataset) still needs one of the two loads above.
   prior's strength around it (no counts, so no more certainty than the prior).
 - `hcc_family` must be one of `reference.hcc_family`; unknown families fail the load (and
   the dry run) with the list of offenders.
+
+## Contract terms (Module 2)
+
+Forward Settlement settles a group's year under a **term set**: percent of premium, quality
+withhold and gate, corridor, RADV pass-through and cap, Part D carve-out, deficit carry-forward
+and IBNR. Term sets are YAML under `policy/contracts/` and inherit from a parent, so a
+variant states only what differs:
+
+```yaml
+term_set_id: ma_pct_withhold_4
+parent: ma_pct_base
+family: ma_pct_premium
+label: "As base, with a 4% withhold"
+version: 1
+terms:
+  withhold_pct: {value: 0.04, unit: share_of_group_premium, basis: illustrative}
+```
+
+Each term carries a `basis` (`contract_text`, `market_practice`, `illustrative` or
+`assumption`) so a result shows where every number came from. A customer's real term sheet
+becomes a new file with `basis: contract_text`. `uv run vantage term-sets` lists what is
+loaded. The database build loads every file in `policy/contracts/`; `uv run vantage load-terms`
+(re)loads them into an existing database, such as `VANTAGE_DB=md:vantage` for the hosted site.
+
+Run a settlement from the CLI:
+
+```bash
+uv run vantage settlement --dataset demo-harborview-38k --seed 42 \
+    --terms ma_pct_base ma_pct_withhold_4 --policy crush_proposed_2026
+```
 
 ## Removing a dataset
 

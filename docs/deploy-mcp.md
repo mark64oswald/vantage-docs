@@ -89,8 +89,11 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 | `search_counties` | find a county's SSA code and rates in the CMS rate book | no |
 | `search_star_contracts` | published Star Ratings by contract or parent organization | no |
 | `bid_assumption_pack` | CY bid assumptions (risk score, QBP, rebate, RADV reserve, net revenue) with P10/P50/P90 and sources | yes |
+| `scenario_studio`, `program_roi` | lever settings and named programs to a five-year margin; Stars lifts re-rated on the Stars engine | yes |
+| `save_proposal`, `list_proposals` | named options per dataset, each tied to its runs | no |
+| `list_term_sets` | Module 2 contract term sets with resolved terms and their basis | no |
+| `forward_adjudication` | Module 2: a risk-bearing group's settlement on a percent-of-premium MA contract, terms compared on the same draws, swing drivers | yes |
 | `list_runs`, `get_run`, `compare_runs` | stored runs and provenance | no |
 
-`forward_adjudication` (Module 2, after June 7) joins when that module exists.
 Export a bid pack with `GET /api/runs/{run_id}/bid-pack?format=csv|xlsx|memo` or
 `vantage bid-export <run_id> --format xlsx --out pack.xlsx`.
