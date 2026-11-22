@@ -1,7 +1,7 @@
 # Deploy the Vantage Console on Railway (U-06, P-06)
 
 The Console, its REST API and the **Ask Vantage** chat run as one container
-(`Dockerfile`, `railway.json`). It reads and writes runs in MotherDuck
+(`Dockerfile`). It reads and writes runs in MotherDuck
 (`md:vantage`), the same database as the hosted MCP server, so a run started in
 the Console shows up in Claude Desktop and the other way round.
 
@@ -71,7 +71,10 @@ list get past the callback.
 
 The Railway service `vantage-console` (project `vantage`, environment `production`) is
 linked to this repo and redeploys on every push to `main`, so a merged PR is live a few
-minutes later. Railway health-checks `/health` before switching traffic. Sign-in uses
+minutes later. Railway health-checks `/health` before switching traffic. Build
+(Dockerfile), healthcheck (`/health`, 300 s timeout) and restart policy (on failure) are set on
+the service itself; the repo has no `railway.json`, since Railway stops reading
+config-as-code files after 2026-12-01 and this service never used it. Sign-in uses
 the WorkOS staging environment for now (Console and hosted MCP); moving to WorkOS
 production means swapping `WORKOS_API_KEY`/`WORKOS_CLIENT_ID` (and `AUTHKIT_DOMAIN` on
 Horizon) and re-running `scripts/workos_setup.py` for the callback.
