@@ -93,7 +93,12 @@ Claude Code: `claude mcp add vantage -- uv --directory /path/to/vantage run vant
 | `save_proposal`, `list_proposals` | named options per dataset, each tied to its runs | no |
 | `list_term_sets` | Module 2 contract term sets with resolved terms and their basis | no |
 | `forward_adjudication` | Module 2: a risk-bearing group's settlement on a percent-of-premium MA contract, terms compared on the same draws, swing drivers | yes |
+| `list_weights_releases` | calibration: weights releases (literature prior, calibrated), parameters moved by evidence, default, held-out back-test | no |
 | `list_runs`, `get_run`, `compare_runs` | stored runs and provenance | no |
+
+The run tools (`stars_forecast`, `stars_value`, `scenario_studio`, `program_roi`, `forward_adjudication`) take
+`weights_version`: `calibrated`, `prior` (literature prior), `empirical` (raw history, the engine before
+calibration) or a `wr-` release id. Left out, the default release applies; `get_run` shows `weights_label`.
 
 Export a bid pack with `GET /api/runs/{run_id}/bid-pack?format=csv|xlsx|memo` or
 `vantage bid-export <run_id> --format xlsx --out pack.xlsx`.
