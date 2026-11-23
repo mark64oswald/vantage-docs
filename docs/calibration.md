@@ -50,21 +50,26 @@ being forecast, so the earlier published back-test was slightly optimistic. That
 
 ## Result on public data (seed 42, 100 draws, all rated contracts)
 
-Mean over held-out star years 2025, 2026 and 2027 (forecast from the year before):
+Mean over held-out star years 2025, 2026 and 2027 (forecast from the year before), with cut-point
+model v2 (#138, [stars-cutpoint-v2.md](stars-cutpoint-v2.md)):
 
 | Metric | Literature prior | Raw history | Calibrated |
 |---|---|---|---|
-| Overall rating within half a star | 91.1% | 90.9% | 90.8% |
-| Brier score, P(4+ stars) | 0.158 | 0.157 | **0.156** |
-| Mean absolute error (stars) | 0.334 | 0.336 | 0.335 |
-| Actual inside P10–P90 | 70.5% | 72.7% | 71.8% |
-| Cut-point error, median over measures (score points) | 1.83 | 1.89 | **1.73** |
+| Overall rating within half a star | 90.9% | 91.3% | 91.1% |
+| Brier score, P(4+ stars) | 0.158 | 0.156 | 0.157 |
+| Mean absolute error (stars) | 0.335 | 0.334 | 0.331 |
+| Actual inside P10–P90 | 70.1% | 72.4% | 71.0% |
+| Cut-point error, median over measures (score points) | 1.04 | 0.96 | 1.00 |
 
-Before and after: evidence moved 156 of the 172 Stars-dynamics parameters. The 80% bands for
-year-over-year slope and residual noise narrowed to about a quarter of the prior width, and the
-industry-shift band to about 60% of it.
+Evidence moves 156 of the 172 Stars-dynamics parameters. The 80% bands for year-over-year slope and
+residual noise narrow to about a quarter of the prior width, and the industry-shift band to about
+60% of it.
 
-Rating accuracy is unchanged within noise; the gain is in the cut-point forecast (8% lower error
-than raw history) and a slightly better-calibrated P(4+). Calibrated is the default because it
-meets the rule: lower cut-point error, and within-half and Brier no worse than raw history beyond
-sampling noise (1 point, 0.002).
+With v2 the three variants tie on Stars within sampling noise: cut-point error is set mainly by the
+published cut points and the guardrail, not by the drift estimates. (Under v1, calibration cut the
+cut-point error from 1.89 to 1.73; v2 takes all three variants to about 1.0.) The default rule is
+non-inferiority: calibrated is the default when it is no worse than raw history beyond noise on cut-
+point error (1/8 point, one rounding step of the median), within half a star (1 point) and Brier
+(0.002). It passes, so the calibrated release, whose effect-weight and RADV-support families the
+Stars back-test does not test, stays the default. Before v2 the rule required strictly lower
+cut-point error.
