@@ -6,6 +6,9 @@ the announcement into a re-priced assumption pack in one sitting.
 
 ## Before the announcement
 
+The worked public-contract edition is `scripts/bid_pack_demo.py` (H2406, CY2028,
+pre-announcement); see docs/module-3-and-portfolio.md.
+
 1. Run the baseline pack for each contract under `ma_payment_2027`, which uses
    CY2027 factors plus illustrative CY2028 ranges:
 
