@@ -71,7 +71,10 @@ list get past the callback.
 
 The Railway service `vantage-console` (project `vantage`, environment `production`) is
 linked to this repo and redeploys on every push to `main`, so a merged PR is live a few
-minutes later. Railway health-checks `/health` before switching traffic. Build
+minutes later. Railway health-checks `/health` before switching traffic. At startup the app also loads
+the repo's contract term sets (`policy/contracts`) and demo portfolios (`inputs/portfolios`) into
+`md:vantage` (`VANTAGE_SYNC_REPO_DATA=1` in the image), so new terms and demos go live with the
+deploy. Each load replaces only the ids the repo ships and never touches runs. Build
 (Dockerfile), healthcheck (`/health`, 300 s timeout) and restart policy (on failure) are set on
 the service itself; the repo has no `railway.json`, since Railway stops reading
 config-as-code files after 2026-12-01 and this service never used it. Sign-in uses
