@@ -192,6 +192,9 @@ A key is checked with one Anthropic call before it's saved, and a rejected key s
 message saying whose key to fix. MCP users connect from their own Claude, so they already
 use their own account.
 
+**Status (Nov 26, 2026): live in production.** Orgs `demo` (Vantage Demo) and
+`hotmail_test`; `md:vantage` is kept untouched as the pre-cutover copy.
+
 **Cutover** (hosted): publish the shared database from `md:vantage`, create the demo org and
 import `md:vantage` into it, create the WorkOS organizations and memberships, link them, set
 `VANTAGE_TENANCY=1` and `VANTAGE_SECRET_KEY` on the Railway service and redeploy. `md:vantage` is left as it is.

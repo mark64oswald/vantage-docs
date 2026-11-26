@@ -5,7 +5,10 @@ runs inside the Railway service `vantage-console`, alongside the Console, and an
 **`https://mcp.vantage-intelligence.ai/mcp`**. Requests whose `Host` is
 `VANTAGE_MCP_HOST` go straight to the MCP app (`vantage_api.app.HostRouter`), so the
 Console's cookie sign-in doesn't apply; the MCP server does its own OAuth through WorkOS
-AuthKit. It reads MotherDuck `md:vantage`. Everything served is aggregate or public
+AuthKit. With multi-org tenancy on (`VANTAGE_TENANCY=1`, live since Nov 26, 2026) each call
+runs in the caller's organization database (`md:vantage_org_<slug>`, with the read-only
+`md:vantage_shared` attached), picked from the token's WorkOS `org_id` or the user's one
+membership; see docs/multi-tenancy-design.md. Everything served is aggregate or public
 contract-level data (no PHI): none of Railway, WorkOS or MotherDuck's plans in use come
 with a BAA.
 
@@ -14,9 +17,9 @@ with a BAA.
         │  OAuth (WorkOS AuthKit, VANTAGE_ALLOWED_EMAILS)
         ▼
  mcp.vantage-intelligence.ai ──▶ Railway vantage-console: HostRouter ──▶ vantage_mcp.server:mcp
-                                                                              │ VANTAGE_DB=md:vantage
+                                                                              │ caller's org
                                                                               ▼
-                                                                    MotherDuck "vantage"
+                                                     MotherDuck vantage_org_<slug> + vantage_shared (read-only)
 ```
 
 Domain, DNS and the Railway variables (`VANTAGE_MCP_HOST`, `AUTHKIT_DOMAIN`, `BASE_URL`,
