@@ -208,3 +208,31 @@ demo can be repeated for each prospect.
 
 Only ids starting with `sample-` that exist under `inputs/samples/` can be imported or
 removed this way. Real customer data uses `load-dataset` and `drop-dataset`.
+
+## Demo: upload screen in the Console
+
+**Upload Data** (left rail, under Trust) takes one aggregate dataset's files in the browser:
+`contract_enrollment.csv`, `hcc_support.csv`, and optionally `dataset.yaml` and
+`group_financials.csv`. Drop the files or their folder, or stage one of the three demo
+sets with one click (`inputs/samples/sample-kestrel-23k/` and
+`inputs/upload-examples/{member-level-columns,unsuppressed}/`).
+
+**Check files** runs the loader's own checks in order and reports each one, writing nothing:
+files present, `dataset.yaml` readable, **no member-level columns** (a `member_id`, MBI, name,
+date of birth, ZIP… refuses the file and stops there), columns match the contract, values
+valid (types, diagnosis sources, HCC families, duplicates), small cells (suppressed with a
+warning, or refused with **Strict** ticked), and room in the workspace (5 uploads per user).
+A file that passes shows a preview (members, contracts, HCC rows by diagnosis source,
+observed support rates, cells suppressed, content hash). **Load into my workspace** loads
+it as `up-<workspace>-<id>` (the workspace is derived from the signed-in email), selects it
+in the dataset picker and every view runs on it.
+
+Uploads are visible only to their owner in `GET /api/datasets` and can be removed by their
+owner with their runs and proposals (**Your uploads → Remove**). REST: `GET /api/uploads`,
+`GET /api/uploads/examples`, `POST /api/uploads/validate`, `POST /api/uploads/load` (body
+`{"files": {name: text}, "strict": false}`), `DELETE /api/uploads/{id}`.
+
+This is demo-grade: uploads sit in the same database as everything else (MotherDuck on the
+hosted site), and the MCP server's `list_datasets` is not filtered by user. Use synthetic or
+test files only on the hosted Console. Real customer data is loaded with `load-dataset` as
+above; a self-serve upload API with separate storage per customer waits for a paying customer.
