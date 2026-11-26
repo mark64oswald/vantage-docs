@@ -159,6 +159,7 @@ Code: `vantage.db.tenancy` (DDL split, shim views, read-only attach) and
 | `VANTAGE_SHARED_ATTACH` | `VANTAGE_SHARED_DB` | what org connections attach read-only as `vantage_shared` (a MotherDuck share URL also works) |
 | `VANTAGE_ORG_DB_PREFIX` | `md:vantage_org_`, else `data/orgs/` | org databases are `<prefix><slug>` |
 | `VANTAGE_DEMO_ORG` | `demo` | the org the repository's demo portfolios sync into at startup |
+| `VANTAGE_SECRET_KEY` | none | Fernet key that encrypts per-org and per-user Claude API keys; without it keys can't be saved and chat uses `ANTHROPIC_API_KEY` |
 | `VANTAGE_DEV_ORG` | none | local runs without sign-in: every request uses this org as admin (ignored when sign-in is required) |
 
 **Commands** (with `VANTAGE_TENANCY=1`):
@@ -171,6 +172,7 @@ uv run vantage org list
 uv run vantage org link demo --workos-org org_...            # (re)map to a WorkOS organization
 uv run vantage org export demo --out exports/demo            # Parquet, one file per table
 uv run vantage org delete demo --confirm demo                # drops the database
+uv run vantage org api-key acme --set < key.txt              # org's Claude key (stdin only); --clear, or no flag to show
 uv run vantage --org demo datasets                           # any command, in one org
 ```
 
@@ -179,9 +181,20 @@ uv run vantage --org demo datasets                           # any command, in o
 no `org_id`; then the user's one registered WorkOS membership is used (several, with no
 choice made, is refused). WorkOS's default `member` role counts as analyst.
 
+**Bring your own Claude key.** The in-app chat (Console "Ask Vantage" and Brief) calls
+Claude with the signed-in user's own key if they set one, else the org's key, else the
+deployment's `ANTHROPIC_API_KEY`, which stays the default and is what the Vantage Demo org
+uses. Keys live in each org's own database (`settings.api_key`), encrypted with
+`VANTAGE_SECRET_KEY`; only the last four characters are ever returned, and `org export`
+leaves them out. Admins set the org key; any member may set a personal key. Set from the
+Console footer ("Claude key"), `GET/PUT/DELETE /api/settings/api-key/{org,me}`, or the CLI.
+A key is checked with one Anthropic call before it's saved, and a rejected key shows a
+message saying whose key to fix. MCP users connect from their own Claude, so they already
+use their own account.
+
 **Cutover** (hosted): publish the shared database from `md:vantage`, create the demo org and
 import `md:vantage` into it, create the WorkOS organizations and memberships, link them, set
-`VANTAGE_TENANCY=1` on the Railway service and redeploy. `md:vantage` is left as it is.
+`VANTAGE_TENANCY=1` and `VANTAGE_SECRET_KEY` on the Railway service and redeploy. `md:vantage` is left as it is.
 
 **Rollback**: remove `VANTAGE_TENANCY` (or set it to `0`) and redeploy. The service goes back
 to `md:vantage`; runs made while the switch was on stay in the org databases.
