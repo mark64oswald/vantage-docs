@@ -104,5 +104,10 @@ The run tools (`stars_forecast`, `stars_value`, `scenario_studio`, `program_roi`
 `weights_version`: `calibrated`, `prior` (literature prior), `empirical` (raw history, the engine before
 calibration) or a `wr-` release id. Left out, the default release applies; `get_run` shows `weights_label`.
 
+`net_risk_position`, `bid_benchmark`, `bid_assumption_pack`, `stars_value`, `scenario_studio`, `program_roi` and
+`forward_adjudication` also take `reform_policy_set_id`, a hypothetical reform overlay such as `hr9544_reform`
+(H.R. 9544 as introduced). Left out, today's rules apply; `get_run` shows the run's `reform`. See
+[reform-scenarios.md](reform-scenarios.md).
+
 Export a bid pack with `GET /api/runs/{run_id}/bid-pack?format=csv|xlsx|memo` or
 `vantage bid-export <run_id> --format xlsx --out pack.xlsx`.
