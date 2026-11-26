@@ -1,7 +1,8 @@
 # Multi-tenancy: separate storage per organization
 
-Status: **design, not built** (Nov 26, 2026). Build when the first pilot customer signs.
-Estimate: about 2–3 weeks of build.
+Status: **built behind a switch** (`VANTAGE_TENANCY`, off by default; PR #172). With the
+switch off, everything runs on the one `$VANTAGE_DB` database as before. See
+[Running it](#running-it) for the commands, the cutover and the rollback.
 
 ## Why
 
@@ -142,3 +143,54 @@ created). `vantage org export|delete <slug>` dumps to Parquet or drops the datab
   org with several datasets?
 - Pooling of outcomes across orgs for public calibration: opt-in per org, recorded where?
 - MotherDuck plan limits on database count and concurrent connections at, say, 20 orgs.
+
+## Running it
+
+Code: `vantage.db.tenancy` (DDL split, shim views, read-only attach) and
+`vantage_services.tenancy` (switch, router, roles, org admin). Isolation tests:
+`tests/test_tenancy.py`; end-to-end check: `scripts/tenancy_check.py [--motherduck]`.
+
+**Settings** (all optional except the switch):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `VANTAGE_TENANCY` | off | `1` turns multi-org on |
+| `VANTAGE_SHARED_DB` | `md:vantage_shared` (when `VANTAGE_DB` is `md:`), else `data/vantage_shared.duckdb` | the shared database |
+| `VANTAGE_SHARED_ATTACH` | `VANTAGE_SHARED_DB` | what org connections attach read-only as `vantage_shared` (a MotherDuck share URL also works) |
+| `VANTAGE_ORG_DB_PREFIX` | `md:vantage_org_`, else `data/orgs/` | org databases are `<prefix><slug>` |
+| `VANTAGE_DEMO_ORG` | `demo` | the org the repository's demo portfolios sync into at startup |
+| `VANTAGE_DEV_ORG` | none | local runs without sign-in: every request uses this org as admin (ignored when sign-in is required) |
+
+**Commands** (with `VANTAGE_TENANCY=1`):
+
+```bash
+uv run vantage org publish-shared --from md:vantage          # or data/vantage.duckdb
+uv run vantage org create demo --name "Vantage Demo" --workos-org org_...
+uv run vantage org import demo --from md:vantage             # copy datasets, runs, calibration
+uv run vantage org list
+uv run vantage org link demo --workos-org org_...            # (re)map to a WorkOS organization
+uv run vantage org export demo --out exports/demo            # Parquet, one file per table
+uv run vantage org delete demo --confirm demo                # drops the database
+uv run vantage --org demo datasets                           # any command, in one org
+```
+
+**Who gets which org.** The Console session and the MCP access token carry the WorkOS
+`org_id` and `role`. A session or token issued before the user joined an organization has
+no `org_id`; then the user's one registered WorkOS membership is used (several, with no
+choice made, is refused). WorkOS's default `member` role counts as analyst.
+
+**Cutover** (hosted): publish the shared database from `md:vantage`, create the demo org and
+import `md:vantage` into it, create the WorkOS organizations and memberships, link them, set
+`VANTAGE_TENANCY=1` on the Railway service and redeploy. `md:vantage` is left as it is.
+
+**Rollback**: remove `VANTAGE_TENANCY` (or set it to `0`) and redeploy. The service goes back
+to `md:vantage`; runs made while the switch was on stay in the org databases.
+
+**What differs from the design above**
+
+- Public calibration releases are *copied* into each new org (and today's releases come
+  over with the demo org), not read through shim views, because an org writes its own
+  releases into the same tables. `vantage calibrate --org <slug>` rebuilds an org's.
+- Uploads keep their per-user `up-<workspace>` naming inside the org for now.
+- A user in several organizations needs AuthKit's org picker at sign-in; there is no
+  in-Console org switch yet.
